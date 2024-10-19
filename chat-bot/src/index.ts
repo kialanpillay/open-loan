@@ -34,7 +34,43 @@ bot.on("message", (msg) => {
           one_time_keyboard: false,
         },
       };
+  }
+});
 
-      bot.sendMessage(chatId, "Please choose:", options);
+bot.onText(/\/start/, (msg) => {
+  const chatId = msg.chat.id;
+  const welcomeMessage =
+    "Welcome BOSS! 🤑\n\n<b>Let's get you financed.</b>\n\nNeed some help filling a new purchase order? How about a new piece of machinery for your business? Open Loan's got you covered.";
+  const options = {
+    reply_markup: {
+      keyboard: [
+        [
+          { text: PersistentMenuButton.MyLoans },
+          { text: PersistentMenuButton.Profile },
+        ],
+        [
+          { text: PersistentMenuButton.HowItWorks },
+          { text: PersistentMenuButton.Option4 },
+        ],
+      ],
+      resize_keyboard: true,
+      one_time_keyboard: false,
+      parse_mode: "HTML",
+    },
+  };
+
+  bot.sendMessage(chatId, welcomeMessage, options);
+});
+
+bot.on("callback_query", (callbackQuery) => {
+  const data = callbackQuery.data;
+  const msg = callbackQuery.message;
+
+  switch (data) {
+    case "new_loan":
+      myLoansButtonHandler.newLoanConversationHandler(msg);
+    default:
+      // Add default case logic if necessary
+      break;
   }
 });
