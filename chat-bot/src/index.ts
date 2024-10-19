@@ -1,5 +1,6 @@
 import { bot, PersistentMenuButton } from "./bot";
 import myLoansButtonHandler from "./button_handlers/my-loans";
+import { getLoansByUserId } from "./services/loans";
 
 bot.on("message", (msg) => {
   const chatId = msg.chat.id;
@@ -20,8 +21,7 @@ bot.on("message", (msg) => {
 
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
-  const welcomeMessage =
-    "Welcome BOSS! 🤑\n\n<b>Let's get you financed.</b>\n\nNeed some help filling a new purchase order? How about a new piece of machinery for your business? Open Loan's got you covered.";
+  const welcomeMessage = `Welcome BOSS! 🤑\n\n<b>Let's get you financed.</b>\n\nNeed some help filling a new purchase order? How about a new piece of machinery for your business? Open Loan's got you covered.\n\nTap ${PersistentMenuButton.MyLoans} to get started`;
   const options = {
     reply_markup: {
       keyboard: [
@@ -47,7 +47,13 @@ bot.on("callback_query", async (callbackQuery) => {
 
   switch (data) {
     case "new_loan":
-      await myLoansButtonHandler.newLoanConversationHandler(msg);
+      await myLoansButtonHandler.newLoan(msg);
+      break;
+    case "manage_loans":
+      await myLoansButtonHandler.manageLoans(msg);
+      break;
+    case data.match(/^manage_loan_.+/)?.input:
+      await myLoansButtonHandler.loanDetails(callbackQuery);
       break;
     case data.match(/^variable_repayments_.+/)?.input:
       await myLoansButtonHandler.variableRepaymentConversationHandler(
@@ -60,15 +66,11 @@ bot.on("callback_query", async (callbackQuery) => {
       );
       break;
     case data.match(/^agree_.+/)?.input:
-      await bot.sendMessage(msg.chat.id, "...");
-      await bot.sendMessage(
-        msg.chat.id,
-        "Great news! <b>Your funds will be sent to you shortly. 🚀</b>",
-        { parse_mode: "HTML" }
-      );
+      await myLoansButtonHandler.agreeToLoan(callbackQuery);
       break;
+    case data.match(/^pay_back_some_now.+/)?.input:
+      await myLoansButtonHandler.payBackSomeNow(callbackQuery);
     default:
-      // Add default case logic if necessary
       break;
   }
 });

@@ -15,9 +15,12 @@ export type VariableRepaymentSchedule = {
 export type Loan = {
   id?: string;
   userId: number;
-  amount: number;
+  principal: number; // Original loan amount
+  remaining: number; // Outstanding balance
+  interestRate: number; // Annualised interest rates
   walletAddress: string;
   reason: string;
+  description: string;
   repaymentType?: AgreementType;
   fixed?: FixedRepaymentSchedule;
   variable?: VariableRepaymentSchedule;

@@ -1,3 +1,4 @@
+import OpenAI from "openai";
 import { db } from "../db";
 import {
   FixedRepaymentSchedule,
@@ -9,12 +10,39 @@ import { v4 as uuidv4 } from "uuid";
 
 export async function createLoan(
   userId: number,
-  amount: number,
+  principal: number,
   walletAddress: string,
   reason: string
 ): Promise<Loan> {
   const id = uuidv4();
-  const loan: Loan = { id, userId, amount, walletAddress, reason };
+
+  const openai = new OpenAI();
+
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [
+      {
+        role: "system",
+        content:
+          "You need to summarise a given reason for a loan into a 2-3 word description of the loan that a user will recognise as being related to their loan. Don't inlude loan in the desciption.",
+      },
+      {
+        role: "user",
+        content: `${reason}`,
+      },
+    ],
+  });
+
+  const loan: Loan = {
+    id,
+    userId,
+    principal,
+    remaining: principal,
+    interestRate: 0.1,
+    walletAddress,
+    reason,
+    description: completion.choices[0].message.content,
+  };
 
   const data = db.readData();
   data["loans"].push(loan);
@@ -35,6 +63,18 @@ export async function getLoansByUserId(userId: number): Promise<Loan[]> {
   }
 
   return userLoans;
+}
+
+export async function getLoanByLoanId(loanId: string): Promise<Loan> {
+  const data = db.readData();
+  const allLoans = data["loans"];
+
+  for (const loan of allLoans) {
+    if (loan.id === loanId) {
+      return loan;
+    }
+  }
+  throw new Error("loan not found");
 }
 
 export async function updateLoanRepaymentSchedule(

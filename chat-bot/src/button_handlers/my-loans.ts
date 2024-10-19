@@ -2,6 +2,7 @@ import TelegramBot from "node-telegram-bot-api";
 import { bot, PersistentMenuButton } from "../bot";
 import {
   createLoan,
+  getLoanByLoanId,
   getLoansByUserId,
   updateLoanRepaymentSchedule,
 } from "../services/loans";
@@ -27,12 +28,18 @@ class MyLoans {
         parse_mode: "HTML",
       });
     } else {
-      const text = `<b>${PersistentMenuButton.MyLoans}</b>\n\nManage your loans or create a new one here!`;
+      let text = `<b>${
+        PersistentMenuButton.MyLoans
+      }</b>\n\nManage your loans or create a new one here!\n\nYou've got ${
+        loans.length
+      } outstanding loan${loans.length > 1 && "s"}.`;
       const options = {
         reply_markup: {
           inline_keyboard: [
-            [{ text: "New Loan", callback_data: "new_loan" }],
-            [{ text: "Manage Loan", callback_data: "manage_loans" }],
+            [
+              { text: "New Loan", callback_data: "new_loan" },
+              { text: "Manage Loans", callback_data: "manage_loans" },
+            ],
           ],
         },
         parse_mode: "HTML",
@@ -45,7 +52,7 @@ class MyLoans {
     }
   }
 
-  async newLoanConversationHandler(msg: TelegramBot.Message) {
+  async newLoan(msg: TelegramBot.Message) {
     await bot.sendMessage(msg.chat.id, "...");
     await bot.sendMessage(msg.chat.id, "<b>Let's get you funded!</b>", {
       parse_mode: "HTML",
@@ -86,7 +93,7 @@ class MyLoans {
     const askWalletAddress = async (loanAmount: string, loanReason: string) => {
       await bot.sendMessage(
         msg.chat.id,
-        "Please enter your Open Payments wallet address:"
+        "Please enter your Open Payments wallet address.\n\nA $0.4 payment will be deducted to ensure your wallet is active."
       );
       bot.once("message", async (msg) => {
         const walletAddress = msg.text;
@@ -135,21 +142,94 @@ class MyLoans {
     await askLoanAmount();
   }
 
+  async manageLoans(msg: TelegramBot.Message) {
+    await bot.sendMessage(msg.chat.id, "...");
+    const loans = await getLoansByUserId(msg.chat.id);
+
+    let text = "<b>Manage Loans</b>\n\nPick a loan to manage:";
+    const inlineKeyboard = loans.map((loan) => [
+      {
+        text: loan.description,
+        callback_data: `manage_loan_${loan.id}`,
+      },
+    ]);
+
+    const options = {
+      reply_markup: {
+        inline_keyboard: inlineKeyboard,
+      },
+    };
+
+    await bot.sendMessage(msg.chat.id, text, {
+      ...options,
+      parse_mode: "HTML",
+    });
+  }
+
+  async loanDetails(callbackQuery: TelegramBot.CallbackQuery) {
+    const data = callbackQuery.data;
+    const msg = callbackQuery.message;
+    await bot.sendMessage(msg.chat.id, "...");
+    const loanId = data.split("_")[2];
+
+    const loans = await getLoansByUserId(msg.chat.id);
+    const loan = loans.find((loan) => loan.id === loanId);
+
+    let repaymentDetails = "No repayment plan selected.";
+    if (loan.repaymentType === AgreementType.FIXED && loan.fixed) {
+      repaymentDetails = `$${loan.fixed.amount} every ${loan.fixed.frequency}`;
+    } else if (loan.repaymentType === AgreementType.VARIABLE && loan.variable) {
+      repaymentDetails = `${
+        loan.variable.percentageOfDeposits * 100
+      }% of deposits`;
+    }
+
+    const loanDetailsMessage =
+      `<b>Loan Details</b>\n\n` +
+      `<b>Description:</b> ${loan.description}\n` +
+      `<b>Remaining amount:</b> $${loan.remaining}\n` +
+      `<b>Repayment Plan (${loan.repaymentType.toLowerCase()}):</b> ${repaymentDetails}`;
+
+    const options = {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "Pay Back Some Now",
+              callback_data: `pay_back_some_now_${loan.id}`,
+            },
+          ],
+        ],
+      },
+    };
+
+    await bot.sendMessage(msg.chat.id, loanDetailsMessage, {
+      ...options,
+      parse_mode: "HTML",
+    });
+  }
+
   async fixedRepaymentConversationHandler(
     callbackQuery: TelegramBot.CallbackQuery
   ) {
     const data = callbackQuery.data;
     const msg = callbackQuery.message;
+    await bot.sendMessage(msg.chat.id, "...");
     const fixedLoanId = data.split("_")[2];
 
     await updateLoanRepaymentSchedule(fixedLoanId, AgreementType.FIXED, {
-      amount: 100,
-      frequency: "weekly",
+      amount: 120,
+      frequency: "monthly",
     });
+
+    const loanDetails = await getLoanByLoanId(fixedLoanId);
 
     const fixedRepaymentMessage =
       "You have chosen the <b>Fixed Repayment Plan.</b>\n\n" +
-      "Please confirm that you agree to 10 weekly repayments of $100 each.";
+      `Your interest rate for the loan is ${
+        loanDetails.interestRate * 100
+      }% per annum, compounded annually.\n\n` +
+      "Please confirm that you agree to 10 monthly repayments of $120 each.";
 
     const fixedRepaymentOptions = {
       reply_markup: {
@@ -167,7 +247,7 @@ class MyLoans {
         ],
       },
     };
-    await bot.sendMessage(msg.chat.id, "...");
+
     await bot.sendMessage(msg.chat.id, fixedRepaymentMessage, {
       ...fixedRepaymentOptions,
       parse_mode: "HTML",
@@ -180,9 +260,15 @@ class MyLoans {
     const data = callbackQuery.data;
     const msg = callbackQuery.message;
     const variableLoanId = data.split("_")[2];
+    const loanDetails = await getLoanByLoanId(variableLoanId);
     const variableRepaymentMessage =
       "You have chosen the <b>Variable Repayment Plan.</b>\n\n" +
-      "Do you accept that 10% of all incoming payments will be sent as repayment?";
+      "Your interest rate for the loan is " +
+      loanDetails.interestRate * 100 +
+      "% per annum, compounded annually.\n\n" +
+      "Do you accept that 15% of all wallet deposits will be sweeped to your loan until you've paid back $" +
+      loanDetails.principal * (1 + loanDetails.interestRate) +
+      "?";
 
     await updateLoanRepaymentSchedule(
       variableLoanId,
@@ -212,6 +298,27 @@ class MyLoans {
     await bot.sendMessage(msg.chat.id, "...");
     await bot.sendMessage(msg.chat.id, variableRepaymentMessage, {
       ...variableRepaymentOptions,
+      parse_mode: "HTML",
+    });
+  }
+
+  async agreeToLoan(callbackQuery: TelegramBot.CallbackQuery) {
+    const msg = callbackQuery.message;
+    await bot.sendMessage(msg.chat.id, "...");
+    await bot.sendMessage(
+      msg.chat.id,
+      "Great news! <b>Your funds will be sent to you shortly. 🚀</b>",
+      { parse_mode: "HTML" }
+    );
+  }
+
+  async payBackSomeNow(callbackQuery: TelegramBot.CallbackQuery) {
+    const data = callbackQuery.data;
+    const msg = callbackQuery.message;
+    const loanId = data.split("_")[2];
+
+    await bot.sendMessage(msg.chat.id, "...");
+    await bot.sendMessage(msg.chat.id, `You've paid!`, {
       parse_mode: "HTML",
     });
   }

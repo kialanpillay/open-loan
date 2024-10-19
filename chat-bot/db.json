@@ -1,3 +1,18 @@
 {
-  "loans": []
+  "loans": [
+    {
+      "id": "25307cea-1ebe-44f2-90b1-e5ab87bf54ac",
+      "userId": 1753711691,
+      "principal": 1000,
+      "remaining": 1000,
+      "interestRate": 0.1,
+      "walletAddress": "www.example.com",
+      "reason": "I want to buy ingredients for a catering job I have",
+      "description": "Catering Supplies",
+      "repaymentType": "VARIABLE",
+      "variable": {
+        "percentageOfDeposits": 0.1
+      }
+    }
+  ]
 }
