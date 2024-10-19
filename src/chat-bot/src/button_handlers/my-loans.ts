@@ -34,7 +34,7 @@ class MyLoans {
         PersistentMenuButton.MyLoans
       }</b>\n\nManage your loans or create a new one here!\n\nYou've got ${
         loans.length
-      } outstanding loan${loans.length > 1 && "s"}.`;
+      } outstanding loan${loans.length > 1 ? "s" : ""}.`;
       const options = {
         reply_markup: {
           inline_keyboard: [
