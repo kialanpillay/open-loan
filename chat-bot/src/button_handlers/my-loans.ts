@@ -1,24 +1,48 @@
 import TelegramBot from "node-telegram-bot-api";
 import { bot, PersistentMenuButton } from "../bot";
-import { createLoan, updateLoanRepaymentSchedule } from "../services/loans";
-import { RepaymentType } from "../services/types";
+import {
+  createLoan,
+  getLoansByUserId,
+  updateLoanRepaymentSchedule,
+} from "../services/loans";
+import { AgreementType } from "../services/types";
 
 class MyLoans {
-  sendMenu(msg: TelegramBot.Message) {
+  async sendMenu(msg: TelegramBot.Message) {
     bot.sendMessage(msg.chat.id, "...");
 
-    const text = `<b>${PersistentMenuButton.MyLoans}</b>\n\nYou don't have any loans with Open Loan!\n\nTap 'New Loan' to get started.`;
-    const options = {
-      reply_markup: {
-        inline_keyboard: [[{ text: "New Loan", callback_data: "new_loan" }]],
-      },
-      parse_mode: "HTML",
-    };
+    const loans = await getLoansByUserId(msg.chat.id);
 
-    bot.sendMessage(msg.chat.id, text, {
-      ...options,
-      parse_mode: "HTML",
-    });
+    if (loans.length == 0) {
+      const text = `<b>${PersistentMenuButton.MyLoans}</b>\n\nYou don't have any loans with Open Loan!\n\nTap 'New Loan' to get started.`;
+      const options = {
+        reply_markup: {
+          inline_keyboard: [[{ text: "New Loan", callback_data: "new_loan" }]],
+        },
+        parse_mode: "HTML",
+      };
+
+      bot.sendMessage(msg.chat.id, text, {
+        ...options,
+        parse_mode: "HTML",
+      });
+    } else {
+      const text = `<b>${PersistentMenuButton.MyLoans}</b>\n\nManage your loans or create a new one here!`;
+      const options = {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "New Loan", callback_data: "new_loan" }],
+            [{ text: "Manage Loan", callback_data: "manage_loans" }],
+          ],
+        },
+        parse_mode: "HTML",
+      };
+
+      bot.sendMessage(msg.chat.id, text, {
+        ...options,
+        parse_mode: "HTML",
+      });
+    }
   }
 
   async newLoanConversationHandler(msg: TelegramBot.Message) {
@@ -118,7 +142,7 @@ class MyLoans {
     const msg = callbackQuery.message;
     const fixedLoanId = data.split("_")[2];
 
-    await updateLoanRepaymentSchedule(fixedLoanId, RepaymentType.FIXED, {
+    await updateLoanRepaymentSchedule(fixedLoanId, AgreementType.FIXED, {
       amount: 100,
       frequency: "weekly",
     });
@@ -162,7 +186,7 @@ class MyLoans {
 
     await updateLoanRepaymentSchedule(
       variableLoanId,
-      RepaymentType.VARIABLE,
+      AgreementType.VARIABLE,
       undefined,
       {
         percentageOfDeposits: 0.1,

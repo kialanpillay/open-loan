@@ -19,9 +19,19 @@ export async function createLoan(
   return loan;
 }
 
-// export async function getLoansByUserId(userId: number) {
-//   db.collection("loans").
-// }
+export async function getLoansByUserId(userId: number): Promise<Loan[]> {
+  const querySnapshot = await db
+    .collection("loans")
+    .where("userId", "==", userId)
+    .get();
+  const loans: Loan[] = [];
+  querySnapshot.forEach((doc) => {
+    const docData = doc.data() as Loan;
+    docData.id = doc.id;
+    loans.push(docData);
+  });
+  return loans;
+}
 
 export async function updateLoanRepaymentSchedule(
   loanId: string,
