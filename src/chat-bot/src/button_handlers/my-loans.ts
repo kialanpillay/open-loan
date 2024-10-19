@@ -8,6 +8,7 @@ import {
 } from "../services/loans";
 import { AgreementType } from "../services/types";
 import { initialCollection } from "../../../shared/interledger/collection/initial";
+import { db } from "../../../shared/db";
 
 class MyLoans {
   async sendMenu(msg: TelegramBot.Message) {
@@ -98,55 +99,56 @@ class MyLoans {
       );
       bot.once("message", async (msg) => {
         const walletAddress = msg.text;
-        const redirectUrl = await initialCollection(
-          Number(loanAmount),
+        const response = await initialCollection(
+          Number(loanAmount) * 100,
           0.4,
           walletAddress
         );
-        await presentLoanOutcome(loanAmount, loanReason, walletAddress);
-      });
-    };
 
-    const presentLoanOutcome = async (
-      loanAmount: string,
-      loanReason: string,
-      walletAddress: string
-    ) => {
-      const loan = await createLoan(
-        msg.chat.id,
-        Number(loanAmount),
-        walletAddress,
-        loanReason
-      );
-
-      const outcomeMessage =
-        "<b>Your loan application was successful. ✅</b>\n\n You can repay using one of the following plans:\n\n• <b>Fixed Plan</b>: Fixed repayments at regular intervals.\n\n• <b>Variable Plan</b>: A percentage of all incoming deposits will be taken as repayment.\n\nPick the option that works for you!";
-
-      const options = {
-        reply_markup: {
-          inline_keyboard: [
-            [
-              {
-                text: "Fixed",
-                callback_data: `fixed_repayments_${loan.id}`,
-              },
-              {
-                text: "Variable",
-                callback_data: `variable_repayments_${loan.id}`,
-              },
-            ],
-          ],
-        },
-      };
-
-      await bot.sendMessage(msg.chat.id, outcomeMessage, {
-        ...options,
-        parse_mode: "HTML",
+        await createLoan(
+          msg.chat.id,
+          Number(loanAmount),
+          walletAddress,
+          loanReason,
+          response.customerId
+        );
+        await bot.sendMessage(
+          msg.chat.id,
+          `Please approve the authorisation payment:\n\n${response.redirect}`
+        );
       });
     };
 
     await askLoanAmount();
   }
+
+  presentLoanOutcome = async (chatId: number, loanId: string) => {
+    const loan = await getLoanByLoanId(loanId);
+    const outcomeMessage =
+      "<b>Your loan application was successful. ✅</b>\n\n You can repay using one of the following plans:\n\n• <b>Fixed Plan</b>: Fixed repayments at regular intervals.\n\n• <b>Variable Plan</b>: A percentage of all incoming deposits will be taken as repayment.\n\nPick the option that works for you!";
+
+    const options = {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "Fixed",
+              callback_data: `fixed_repayments_${loan.id}`,
+            },
+            {
+              text: "Variable",
+              callback_data: `variable_repayments_${loan.id}`,
+            },
+          ],
+        ],
+      },
+    };
+
+    await bot.sendMessage(chatId, outcomeMessage, {
+      ...options,
+      parse_mode: "HTML",
+    });
+  };
 
   async manageLoans(msg: TelegramBot.Message) {
     await bot.sendMessage(msg.chat.id, "...");
@@ -182,11 +184,17 @@ class MyLoans {
     const loan = loans.find((loan) => loan.id === loanId);
 
     let repaymentDetails = "No repayment plan selected.";
-    if (loan.repaymentType === AgreementType.FIXED && loan.fixed) {
-      repaymentDetails = `$${loan.fixed.amount} every ${loan.fixed.frequency}`;
-    } else if (loan.repaymentType === AgreementType.VARIABLE && loan.variable) {
+    if (
+      loan.repaymentType === AgreementType.FIXED &&
+      loan.repaymentPlan.type === AgreementType.FIXED
+    ) {
+      repaymentDetails = `$${loan.repaymentPlan.amount} every ${loan.repaymentPlan.frequency}`;
+    } else if (
+      loan.repaymentType === AgreementType.VARIABLE &&
+      loan.repaymentPlan.type === AgreementType.VARIABLE
+    ) {
       repaymentDetails = `${
-        loan.variable.percentageOfDeposits * 100
+        loan.repaymentPlan.percentageOfDeposits * 100
       }% of deposits`;
     }
 
@@ -224,6 +232,7 @@ class MyLoans {
     const fixedLoanId = data.split("_")[2];
 
     await updateLoanRepaymentSchedule(fixedLoanId, AgreementType.FIXED, {
+      type: AgreementType.FIXED,
       amount: 120,
       frequency: "monthly",
     });
@@ -281,6 +290,7 @@ class MyLoans {
       AgreementType.VARIABLE,
       undefined,
       {
+        type: AgreementType.VARIABLE,
         percentageOfDeposits: 0.1,
       }
     );

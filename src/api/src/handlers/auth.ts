@@ -10,7 +10,7 @@ export const handleInteraction = async (c: Context) => {
   );
 
   const data = await db.readData();
-  const { outgoingPaymentGrant, quote } = data[id];
+  const { outgoingPaymentGrant, incomingPayment, walletAddress } = data[id];
   try {
     const client = await createOpenPaymentsClient();
     const continuedGrant: any = await client.grant.continue(
@@ -23,14 +23,23 @@ export const handleInteraction = async (c: Context) => {
       }
     );
 
+    const customerWalletAddress = await client.walletAddress.get({
+      url: walletAddress,
+    });
+
     const outgoingPayment = await client.outgoingPayment.create(
       {
-        url: new URL(`https://ilp.interledger-test.dev/${id}`).origin,
+        url: new URL(walletAddress).origin,
         accessToken: continuedGrant["access_token"].value,
       },
       {
-        walletAddress: `https://ilp.interledger-test.dev/${id}`,
-        quoteId: quote.id,
+        walletAddress: walletAddress,
+        incomingPayment: incomingPayment.id,
+        debitAmount: {
+          value: "100", // Agreement Initiation Payment
+          assetCode: customerWalletAddress.assetCode,
+          assetScale: customerWalletAddress.assetScale,
+        },
       }
     );
     data[id] = {
@@ -38,6 +47,7 @@ export const handleInteraction = async (c: Context) => {
       accessToken: continuedGrant["access_token"].value,
       manageUrl: continuedGrant["access_token"].manage,
     };
+
     db.updateData(data);
 
     return c.json(outgoingPayment, 200);

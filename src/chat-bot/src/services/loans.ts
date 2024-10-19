@@ -13,7 +13,8 @@ export async function createLoan(
   userId: number,
   principal: number,
   walletAddress: string,
-  reason: string
+  reason: string,
+  customerId: string
 ): Promise<Loan> {
   const id = uuidv4();
 
@@ -43,6 +44,7 @@ export async function createLoan(
     walletAddress,
     reason,
     description: completion.choices[0].message.content,
+    customerId,
   };
 
   const data = db.readData();
@@ -90,10 +92,10 @@ export async function updateLoanRepaymentSchedule(
     if (loan["id"] === loanId) {
       if (repaymentType === AgreementType.FIXED) {
         loan["repaymentType"] = repaymentType;
-        loan["fixed"] = fixed;
+        loan["repaymentPlan"] = fixed;
       } else if (repaymentType === AgreementType.VARIABLE) {
         loan["repaymentType"] = repaymentType;
-        loan["variable"] = variable;
+        loan["repaymentPlan"] = variable;
       }
     }
   }

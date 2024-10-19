@@ -4,11 +4,13 @@ export enum AgreementType {
 }
 
 export type FixedRepaymentSchedule = {
+  type: AgreementType.FIXED;
   amount: number;
   frequency: "daily" | "weekly" | "monthly";
 };
 
 export type VariableRepaymentSchedule = {
+  type: AgreementType.VARIABLE;
   percentageOfDeposits: number;
 };
 
@@ -21,7 +23,7 @@ export type Loan = {
   walletAddress: string;
   reason: string;
   description: string;
+  customerId: string;
   repaymentType?: AgreementType;
-  fixed?: FixedRepaymentSchedule;
-  variable?: VariableRepaymentSchedule;
+  repaymentPlan?: FixedRepaymentSchedule | VariableRepaymentSchedule;
 };

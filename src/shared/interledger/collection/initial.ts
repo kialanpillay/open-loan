@@ -55,40 +55,6 @@ export async function initialCollection(
     }
   );
 
-  const quoteGrant: any = await client.grant.request(
-    {
-      url: customerWalletAddress.authServer,
-    },
-    {
-      access_token: {
-        access: [
-          {
-            type: "quote",
-            actions: ["create", "read", "read-all"],
-          },
-        ],
-      },
-    }
-  );
-
-  const quote = await client.quote.create(
-    {
-      url: new URL(CUSTOMER_WALLET_ADDRESS).origin,
-      accessToken: quoteGrant["access_token"].value,
-    },
-    {
-      method: "ilp",
-      walletAddress: CUSTOMER_WALLET_ADDRESS,
-      receiver: incomingPayment.id,
-      debitAmount: {
-        value: initialPayment.toString(), // Agreement Initiation Payment
-        assetCode: customerWalletAddress.assetCode,
-        assetScale: customerWalletAddress.assetScale,
-      },
-    }
-  );
-
-  const currentDate = new Date().toISOString();
   const outgoingPaymentGrant: any = await client.grant.request(
     {
       url: customerWalletAddress.authServer,
@@ -100,11 +66,6 @@ export async function initialCollection(
             identifier: customerWalletAddress.id,
             type: "outgoing-payment",
             actions: ["list", "list-all", "read", "read-all", "create"],
-            limits: {
-              debitAmount: quote.debitAmount,
-              receiveAmount: quote.receiveAmount,
-              interval: `R12/${currentDate}/P1M`,
-            },
           },
         ],
       },
@@ -123,12 +84,13 @@ export async function initialCollection(
   data[customerId] = {
     incomingPayment,
     outgoingPaymentGrant,
-    quote,
     totalAmount,
+    walletAddress,
   };
   db.updateData(data);
 
   return {
     redirect: outgoingPaymentGrant["interact"].redirect,
+    customerId,
   };
 }
