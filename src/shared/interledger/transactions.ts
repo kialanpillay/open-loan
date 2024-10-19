@@ -19,19 +19,18 @@ export async function getTransactions(loanId: string): Promise<number> {
       (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)
     );
 
-    while (debitAmount === -1 && transactions.length > 0) {
+    if (transactions.length > 0) {
       const txn = transactions[0];
-      if (txn.receivedAmount && Number(txn.receivedAmount.value) > 0) {
-        debitAmount = 0.1 * Number(txn.receivedAmount.value);
-        break;
-      }
+      debitAmount = 0.1 * Number(txn.receivedAmount.value);
+      return debitAmount;
     }
+
     // If no transactions, revert to fixed schedule
     if ((debitAmount = -1)) {
-      debitAmount = loan.principal / 10;
+      debitAmount = (loan.principal * (1 + loan.interestRate)) / 10;
     }
   } catch (error) {
-    console.error(error), (debitAmount = loan.principal / 10);
+    console.error(error);
   }
 
   return debitAmount;

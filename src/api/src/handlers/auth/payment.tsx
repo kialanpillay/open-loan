@@ -6,10 +6,7 @@ import {
 } from "../../../../chat-bot/src/services/loans";
 import { Layout } from "../../components/Layout";
 import { Status } from "../../components/Status";
-import {
-  sendLoanOutcomeToUser,
-  sendTransactionAuthorisationRequest,
-} from "../../services/notifications";
+import { sendTransactionAuthorisationRequest } from "../../services/notifications";
 
 export const handlePaymentInteraction = async (c: Context) => {
   const interactRef = c.req.query("interact_ref");
@@ -46,7 +43,7 @@ export const handlePaymentInteraction = async (c: Context) => {
         walletAddress: walletAddress,
         incomingPayment: incomingPayment.id,
         debitAmount: {
-          value: "100", // Agreement Initiation Payment
+          value: "40", // Agreement Initiation Payment
           assetCode: customerWalletAddress.assetCode,
           assetScale: customerWalletAddress.assetScale,
         },

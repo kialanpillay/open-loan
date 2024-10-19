@@ -4,6 +4,11 @@ import { createOpenPaymentsClient } from "../infrastructure/client";
 import { getLoanByLoanId } from "../../../chat-bot/src/services/loans";
 
 export async function recurringCollection(debitAmount: number, loanId: string) {
+  console.log(
+    `[${recurringCollection.name}] initiating recurring payment for ${
+      debitAmount / 100
+    }`
+  );
   const loan = await getLoanByLoanId(loanId);
   const { incomingPayment, accessToken, manageUrl, walletAddress } =
     loan.grants;

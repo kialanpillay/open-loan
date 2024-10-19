@@ -1,17 +1,17 @@
 {
   "loans": [
     {
-      "id": "cb459340-be07-47b9-b612-b0eeba8bdd61",
+      "id": "1b3f3784-c569-4b40-a5ff-a03a83e0887e",
       "userId": 1753711691,
       "principal": 1000,
-      "remaining": 1000,
+      "remaining": 901,
       "interestRate": 0.1,
       "reason": "test",
-      "description": "Invalid request.",
-      "createAt": "2024-10-19T23:09:38.151Z",
+      "description": "Test Purchase",
+      "createAt": "2024-10-19T23:46:02.557Z",
       "grants": {
         "incomingPayment": {
-          "id": "https://ilp.interledger-test.dev/incoming-payments/6a4c3d61-2f1a-4dfc-a1f6-1483f59502e3",
+          "id": "https://ilp.interledger-test.dev/incoming-payments/8c9b1acb-1e49-4d17-9009-520e7f9d69cd",
           "walletAddress": "https://ilp.interledger-test.dev/openloan",
           "incomingAmount": {
             "value": "100000",
@@ -24,27 +24,27 @@
             "assetScale": 2
           },
           "completed": false,
-          "createdAt": "2024-10-19T23:09:40.252Z",
-          "updatedAt": "2024-10-19T23:09:40.252Z",
-          "expiresAt": "2024-10-19T23:19:39.938Z",
+          "createdAt": "2024-10-19T23:46:04.751Z",
+          "updatedAt": "2024-10-19T23:46:04.751Z",
+          "expiresAt": "2024-10-19T23:56:04.437Z",
           "methods": [
             {
               "type": "ilp",
-              "ilpAddress": "test.net.m9RF_X4Mu2DCgD5Ih3N-zW0vSNkazqtFZZfhLhRyH0EfSFbQTidGZ3qdo65Uev_DOwrWzrFbxikKgHmtkz8V67R6cETza9Y",
-              "sharedSecret": "dKZLB-7KqsF5mfTzV04-JbnDxGKapvJZ0OBvKRWsbVk"
+              "ilpAddress": "test.net.SpJai84G0Ejpr6QBXeeX_8LAIkHZec5mwZ7lu9X9p1MWM3UD2k5MiA9ps8-WdFYdRcsyaQ9P8ewyJj6Ca-hEVFvsXyqSnHA",
+              "sharedSecret": "1t9dZCh_u33LLmprAC-qOQfBGOQBxkBWp6HPapyzryI"
             }
           ]
         },
         "outgoingPaymentGrant": {
           "interact": {
-            "redirect": "https://auth.interledger-test.dev/interact/ece9f4f3-dc2e-4272-b4ba-734f781f3edb/ED68224980105E53?clientName=Open+Loan&clientUri=https%3A%2F%2Filp.interledger-test.dev%2Fopenloan",
-            "finish": "ED68224980105E53"
+            "redirect": "https://auth.interledger-test.dev/interact/7dd42179-2e63-4bcf-80ba-fa9799534834/238376C70921E5DC?clientName=Open+Loan&clientUri=https%3A%2F%2Filp.interledger-test.dev%2Fopenloan",
+            "finish": "238376C70921E5DC"
           },
           "continue": {
             "access_token": {
-              "value": "D13B34C5D8D48BE04CD8"
+              "value": "73F99B7B440A4684F197"
             },
-            "uri": "https://auth.interledger-test.dev/continue/4e1c2e99-f0e5-4c84-a1d1-bbbce886af8e",
+            "uri": "https://auth.interledger-test.dev/continue/3a7ec84b-33b0-461a-a0e4-338586c00435",
             "wait": 1
           }
         },
@@ -53,21 +53,26 @@
         "customerId": "sam",
         "userIncomingPaymentsGrant": {
           "interact": {
-            "redirect": "https://auth.interledger-test.dev/interact/df6f3b83-461c-4f7d-bef0-aabb0ed66ae1/1E9D5A2CA64FDBB7?clientName=Open+Loan&clientUri=https%3A%2F%2Filp.interledger-test.dev%2Fopenloan",
-            "finish": "1E9D5A2CA64FDBB7"
+            "redirect": "https://auth.interledger-test.dev/interact/17e1daa1-2a44-464c-b994-841954a3a98d/2E41018C3423AEB4?clientName=Open+Loan&clientUri=https%3A%2F%2Filp.interledger-test.dev%2Fopenloan",
+            "finish": "2E41018C3423AEB4"
           },
           "continue": {
             "access_token": {
-              "value": "CC283B2A587E591F15E3"
+              "value": "688B4A1CABD74A89B80C"
             },
-            "uri": "https://auth.interledger-test.dev/continue/493a71c4-81a3-4aa3-8ca6-a4969137681b",
+            "uri": "https://auth.interledger-test.dev/continue/48fc81f5-3112-46ac-ae1d-a0bda26b23cf",
             "wait": 1
           }
         },
-        "accessToken": "3EF727B18D6837AA278C",
-        "manageUrl": "https://auth.interledger-test.dev/token/d85b3bcf-2aef-4b5f-b288-5488adbb8e61",
-        "transactionsAccessToken": "587D441474C315458627",
-        "transactionsManageUrl": "https://auth.interledger-test.dev/token/9a5551de-dd4a-4b26-8c03-c0ded8a8e00e"
+        "accessToken": "806E93C87DB0B2F5927D",
+        "manageUrl": "https://auth.interledger-test.dev/token/a348f360-62e9-43da-a987-09a9ef6a162f",
+        "transactionsAccessToken": "256DED0FB6E471EABBE4",
+        "transactionsManageUrl": "https://auth.interledger-test.dev/token/e32ef473-9d54-4507-a9cb-71e8e521f825"
+      },
+      "repaymentType": "VARIABLE",
+      "repaymentPlan": {
+        "type": "VARIABLE",
+        "percentageOfDeposits": 0.1
       }
     }
   ]

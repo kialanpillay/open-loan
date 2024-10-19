@@ -4,17 +4,36 @@ import app from "./app";
 import { db } from "../../shared/db";
 import { getTransactions } from "../../shared/interledger/transactions";
 import { recurringCollection } from "../../shared/interledger/collection/recurring";
+import { sendPaymentNotificationToUser } from "./services/notifications";
+import { Loan } from "../../chat-bot/src/services/types";
 
 const port = 3000;
-const POLLING_INTERVAL = 1000;
+const POLLING_INTERVAL = 60000;
 
 async function pollingJob() {
   const data = db.readData();
-  const latestLoan = data.loans.sort((a, b) => b.createAt - a.createAt)[0];
+  const latestLoan: Loan = data.loans.sort(
+    (a, b) => b.createAt - a.createAt
+  )[0];
 
-  if (latestLoan && latestLoan?.grants?.transactionsAccessToken) {
-    const debitAmount = await getTransactions(latestLoan.Id);
-    await recurringCollection(debitAmount, latestLoan.id);
+  if (
+    latestLoan &&
+    latestLoan?.grants?.transactionsAccessToken &&
+    latestLoan.repaymentPlan
+  ) {
+    const debitAmount = await getTransactions(latestLoan.id);
+    const response = await recurringCollection(debitAmount, latestLoan.id);
+
+    if (!response.failed) {
+      latestLoan.remaining -= debitAmount / 100;
+
+      await sendPaymentNotificationToUser(
+        latestLoan.userId,
+        debitAmount,
+        latestLoan.remaining
+      );
+      db.updateData(data);
+    }
   }
 }
 

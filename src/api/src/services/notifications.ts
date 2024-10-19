@@ -66,5 +66,27 @@ export async function sendTransactionAuthorisationRequest(
 
 export async function sendPaymentNotificationToUser(
   chatId: number,
-  repaymentAmount: number
-) {}
+  repaymentAmount: number,
+  remaining: number
+) {
+  const message = `<b>Loan Repayment Received</b>\n\nWe received $${
+    repaymentAmount / 100
+  } from you!\n\nYou still need to repay $${remaining}`;
+
+  const telegramApiUrl = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`;
+  const response = await fetch(telegramApiUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: message,
+      parse_mode: "HTML",
+    }),
+  });
+
+  if (!response.ok) {
+    console.error("Failed to send message to Telegram:", response.statusText);
+  }
+}
