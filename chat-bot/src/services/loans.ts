@@ -2,7 +2,7 @@ import { db } from "../db";
 import {
   FixedRepaymentSchedule,
   Loan,
-  RepaymentType,
+  AgreementType,
   VariableRepaymentSchedule,
 } from "./types";
 
@@ -25,14 +25,14 @@ export async function createLoan(
 
 export async function updateLoanRepaymentSchedule(
   loanId: string,
-  repaymentType: RepaymentType,
+  repaymentType: AgreementType,
   fixed?: FixedRepaymentSchedule,
   variable?: VariableRepaymentSchedule
 ) {
   const doc_ref = await db.collection("loans").doc(loanId);
-  if (repaymentType === RepaymentType.FIXED) {
+  if (repaymentType === AgreementType.FIXED) {
     await doc_ref.update({ repaymentType, fixed });
-  } else if (repaymentType === RepaymentType.VARIABLE) {
+  } else if (repaymentType === AgreementType.VARIABLE) {
     await doc_ref.update({ repaymentType, variable });
   }
 }

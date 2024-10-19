@@ -1,4 +1,4 @@
-export enum RepaymentType {
+export enum AgreementType {
   FIXED = "FIXED",
   VARIABLE = "VARIABLE",
 }
@@ -18,7 +18,7 @@ export type Loan = {
   amount: number;
   walletAddress: string;
   reason: string;
-  repaymentType?: RepaymentType;
+  repaymentType?: AgreementType;
   fixed?: FixedRepaymentSchedule;
   variable?: VariableRepaymentSchedule;
 };
