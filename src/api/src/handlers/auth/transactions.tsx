@@ -56,13 +56,13 @@ export const handleTransactionsInteraction = async (c: Context) => {
 
   const loan = await getLoanByLoanId(id);
 
-  const { userIncomingPaymentsGrant, walletAddress } = loan.grants;
+  const { userIncomingPaymentsGrant } = loan.grants;
   try {
     const client = await createOpenPaymentsClient();
     const continuedGrant: any = await client.grant.continue(
       {
-        accessToken: '8C06FF2AE4409092B0F6', // userIncomingPaymentsGrant.continue.access_token.value
-        url: 'https://auth.interledger-test.dev/continue/0def4f39-9891-413a-87fc-a6e156dd1dc7' //userIncomingPaymentsGrant.continue.uri,
+        accessToken: userIncomingPaymentsGrant.continue.access_token.value,
+        url: userIncomingPaymentsGrant.continue.uri,
       },
       {
         interact_ref: interactRef,
