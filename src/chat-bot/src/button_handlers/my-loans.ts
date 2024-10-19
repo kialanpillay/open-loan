@@ -4,11 +4,11 @@ import {
   createLoan,
   getLoanByLoanId,
   getLoansByUserId,
+  updateLoanGrants,
   updateLoanRepaymentSchedule,
 } from "../services/loans";
 import { AgreementType } from "../services/types";
 import { initialCollection } from "../../../shared/interledger/collection/initial";
-import { db } from "../../../shared/db";
 
 class MyLoans {
   async sendMenu(msg: TelegramBot.Message) {
@@ -99,56 +99,29 @@ class MyLoans {
       );
       bot.once("message", async (msg) => {
         const walletAddress = msg.text;
+        const loan = await createLoan(
+          msg.chat.id,
+          Number(loanAmount),
+          loanReason
+        );
+
         const response = await initialCollection(
+          loan.id,
           Number(loanAmount) * 100,
-          0.4,
           walletAddress
         );
 
-        await createLoan(
-          msg.chat.id,
-          Number(loanAmount),
-          walletAddress,
-          loanReason,
-          response.customerId
-        );
+        updateLoanGrants(loan.id, response);
+
         await bot.sendMessage(
           msg.chat.id,
-          `Please approve the authorisation payment:\n\n${response.redirect}`
+          `Please approve the authorisation payment:\n\n${response.outgoingPaymentGrant["interact"].redirect}`
         );
       });
     };
 
     await askLoanAmount();
   }
-
-  presentLoanOutcome = async (chatId: number, loanId: string) => {
-    const loan = await getLoanByLoanId(loanId);
-    const outcomeMessage =
-      "<b>Your loan application was successful. ✅</b>\n\n You can repay using one of the following plans:\n\n• <b>Fixed Plan</b>: Fixed repayments at regular intervals.\n\n• <b>Variable Plan</b>: A percentage of all incoming deposits will be taken as repayment.\n\nPick the option that works for you!";
-
-    const options = {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: "Fixed",
-              callback_data: `fixed_repayments_${loan.id}`,
-            },
-            {
-              text: "Variable",
-              callback_data: `variable_repayments_${loan.id}`,
-            },
-          ],
-        ],
-      },
-    };
-
-    await bot.sendMessage(chatId, outcomeMessage, {
-      ...options,
-      parse_mode: "HTML",
-    });
-  };
 
   async manageLoans(msg: TelegramBot.Message) {
     await bot.sendMessage(msg.chat.id, "...");
@@ -276,14 +249,11 @@ class MyLoans {
     const msg = callbackQuery.message;
     const variableLoanId = data.split("_")[2];
     const loanDetails = await getLoanByLoanId(variableLoanId);
-    const variableRepaymentMessage =
-      "You have chosen the <b>Variable Repayment Plan.</b>\n\n" +
-      "Your interest rate for the loan is " +
-      loanDetails.interestRate * 100 +
-      "% per annum, compounded annually.\n\n" +
-      "Do you accept that 15% of all wallet deposits will be sweeped to your loan until you've paid back $" +
-      loanDetails.principal * (1 + loanDetails.interestRate) +
-      "?";
+    const variableRepaymentMessage = `You have chosen the <b>Variable Repayment Plan:</b>\n\nInterest Rate: ${
+      loanDetails.interestRate * 100
+    }%<b>Do you accept that 15% of all wallet deposits will be sweeped to your loan until you've paid back $${
+      loanDetails.principal * (1 + loanDetails.interestRate)
+    }?</b>`;
 
     await updateLoanRepaymentSchedule(
       variableLoanId,
