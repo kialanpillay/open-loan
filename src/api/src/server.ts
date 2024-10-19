@@ -13,6 +13,6 @@ serve(
   (info) => {
     console.log(`Open Loan 🚀: Port ${info.port}`);
     const data = db.readData();
-    console.log("data", data);
+    console.log("DB", data);
   }
 );

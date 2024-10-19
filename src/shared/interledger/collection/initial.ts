@@ -34,6 +34,30 @@ export async function initialCollection(
     }
   );
 
+  const userIncomingPaymentsGrant: any = await client.grant.request(
+    {
+      url: customerWalletAddress.authServer,
+    },
+    {
+      access_token: {
+        access: [
+          {
+            type: "incoming-payment",
+            actions: ["list", "list-all"],
+          },
+        ],
+      },
+      interact: {
+        start: ["redirect"],
+        finish: {
+          method: "redirect",
+          uri: `${BASE_URL}/auth/transactions/${loanId}`,
+          nonce: v4(),
+        },
+      },
+    }
+  );
+
   const incomingPayment = await client.incomingPayment.create(
     {
       url: new URL(OPEN_LOAN_WALLET_ADDRESS).origin,
@@ -81,5 +105,6 @@ export async function initialCollection(
     totalAmount,
     walletAddress,
     customerId,
+    userIncomingPaymentsGrant,
   };
 }

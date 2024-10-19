@@ -1,11 +1,11 @@
 import type { Context } from "hono";
-import { createOpenPaymentsClient } from "../../../shared/interledger/infrastructure/client";
+import { createOpenPaymentsClient } from "../../../../shared/interledger/infrastructure/client";
 import {
   getLoanByLoanId,
   updateLoanGrants,
-} from "../../../chat-bot/src/services/loans";
-import { Layout } from "../components/Layout";
-import { Status } from "../components/Status";
+} from "../../../../chat-bot/src/services/loans";
+import { Layout } from "../../components/Layout";
+import { Status } from "../../components/Status";
 
 const sendLoanOutcomeToUser = async (chatId: number, loanId: string) => {
   const outcomeMessage =
@@ -47,7 +47,7 @@ const sendLoanOutcomeToUser = async (chatId: number, loanId: string) => {
   }
 };
 
-export const handleInteraction = async (c: Context) => {
+export const handleTransactionsInteraction = async (c: Context) => {
   const interactRef = c.req.query("interact_ref");
   const id = c.req.param("id");
   console.log(
@@ -56,49 +56,29 @@ export const handleInteraction = async (c: Context) => {
 
   const loan = await getLoanByLoanId(id);
 
-  const { outgoingPaymentGrant, incomingPayment, walletAddress } = loan.grants;
+  const { userIncomingPaymentsGrant, walletAddress } = loan.grants;
   try {
     const client = await createOpenPaymentsClient();
     const continuedGrant: any = await client.grant.continue(
       {
-        accessToken: outgoingPaymentGrant.continue.access_token.value,
-        url: outgoingPaymentGrant.continue.uri,
+        accessToken: '8C06FF2AE4409092B0F6', // userIncomingPaymentsGrant.continue.access_token.value
+        url: 'https://auth.interledger-test.dev/continue/0def4f39-9891-413a-87fc-a6e156dd1dc7' //userIncomingPaymentsGrant.continue.uri,
       },
       {
         interact_ref: interactRef,
       }
     );
 
-    const customerWalletAddress = await client.walletAddress.get({
-      url: walletAddress,
-    });
-
-    const outgoingPayment = await client.outgoingPayment.create(
-      {
-        url: new URL(walletAddress).origin,
-        accessToken: continuedGrant["access_token"].value,
-      },
-      {
-        walletAddress: walletAddress,
-        incomingPayment: incomingPayment.id,
-        debitAmount: {
-          value: "100", // Agreement Initiation Payment
-          assetCode: customerWalletAddress.assetCode,
-          assetScale: customerWalletAddress.assetScale,
-        },
-      }
-    );
     updateLoanGrants(id, {
-      accessToken: continuedGrant["access_token"].value,
-      manageUrl: continuedGrant["access_token"].manage,
+      transactionsAccessToken: continuedGrant["access_token"].value,
+      transactionsManageUrl: continuedGrant["access_token"].manage,
     });
 
-    // Send loan outcome to the user
     await sendLoanOutcomeToUser(loan.userId, loan.id);
 
     return c.render(
       <Layout>
-        <Status status={outgoingPayment.failed ? "Failed" : "Success"} />
+        <Status status={"Success"} />
       </Layout>
     );
   } catch (error) {

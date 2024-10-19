@@ -51,7 +51,9 @@
         "walletAddress": "https://ilp.interledger-test.dev/sam",
         "customerId": "sam",
         "accessToken": "A945D16FD770AB3E82C6",
-        "manageUrl": "https://auth.interledger-test.dev/token/ed8bd40c-40cf-4205-96cb-89e37ac177f9"
+        "manageUrl": "https://auth.interledger-test.dev/token/ed8bd40c-40cf-4205-96cb-89e37ac177f9",
+        "transactionsAccessToken": "E43B6C4447BC037CE0B5",
+        "transactionsManageUrl": "https://auth.interledger-test.dev/token/38ac3d22-60d0-4118-83ac-96846dd6bba1"
       },
       "repaymentType": "VARIABLE",
       "repaymentPlan": {

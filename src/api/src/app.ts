@@ -3,7 +3,8 @@ import { cors } from "hono/cors";
 import { jsxRenderer } from "hono/jsx-renderer";
 import { logger } from "hono/logger";
 import { secureHeaders } from "hono/secure-headers";
-import { handleInteraction } from "./handlers/auth";
+import { handlePaymentInteraction } from "./handlers/auth/payment";
+import { handleTransactionsInteraction } from "./handlers/auth/transactions";
 
 const app = new Hono();
 // CORS middleware
@@ -31,6 +32,7 @@ app.use("*", jsxRenderer());
 
 app.get("/", (c) => c.text("Open Loan"));
 
-app.get("/auth/:id", handleInteraction);
+app.get("/auth/:id", handlePaymentInteraction);
+app.get("/auth/transactions/:id", handleTransactionsInteraction);
 
 export default app;
