@@ -4,14 +4,16 @@ import { jsxRenderer } from 'hono/jsx-renderer';
 import { logger } from 'hono/logger';
 import { secureHeaders } from 'hono/secure-headers';
 import { handleDisbursement } from './handlers/disbursement';
-import { handleCollection } from './handlers/collection';
-import { handleGrantAuth } from './handlers/auth';
+import { handleInitialCollection } from './handlers/collection/initial';
+import { handleInteraction } from './handlers/auth';
 
 const app = new Hono();
 
 export const db: Record<string, {
     grant: any,
     quote: any
+    agreementType: 'FIXED' | 'VARIABLE'
+    totalAmount: number
 }> = {}
 
 // CORS middleware
@@ -39,10 +41,12 @@ app.use('*', jsxRenderer());
 
 app.get('/', (c) => c.text("Open Loan"));
 
-app.post('/collect', handleCollection);
+app.post('/collect/initial', handleInitialCollection);
+
+app.post('/collect/recurring', (c) => c.text("Hello", 200));
 
 app.post('/disbursement', handleDisbursement);
 
-app.get('/auth/:walletId', handleGrantAuth);
+app.get('/auth/:id', handleInteraction);
 
 export default app;

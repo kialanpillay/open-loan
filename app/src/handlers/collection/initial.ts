@@ -1,11 +1,15 @@
 import type { Context } from 'hono';
-import { createOpenPaymentsClient } from '../infrastructure/client'
-import { BASE_URL, CUSTOMER_WALLET_ADDRESS, OPEN_LOAN_WALLET_ADDRESS } from '../util/constants';
+import { createOpenPaymentsClient } from '../../infrastructure/client'
+import { BASE_URL, CUSTOMER_WALLET_ADDRESS, OPEN_LOAN_WALLET_ADDRESS } from '../../util/constants';
 import { v4 } from 'uuid';
-import { db } from '../app'
+import { db } from '../../app'
 
-export const handleCollection = async (c: Context) => {
-    console.log("[handleCollection]")
+export const handleInitialCollection = async (c: Context) => {
+    const body = await c.req.parseBody();
+    const amount = Number(body.amount) * 100
+    const agreementType = body.agreementType as 'FIXED' | 'VARIABLE'
+    
+    console.log("[collection/initial] handling request", body)
     try {
         const client = await createOpenPaymentsClient();
         const openLoanWalletAddress = await client.walletAddress.get({
@@ -14,6 +18,7 @@ export const handleCollection = async (c: Context) => {
         const customerWalletAddress = await client.walletAddress.get({
             url: CUSTOMER_WALLET_ADDRESS,
         });
+        const customerId = customerWalletAddress.id.substring(customerWalletAddress.id.lastIndexOf("/")+1)
     
         const incomingPaymentGrant: any = await client.grant.request(
             {
@@ -39,7 +44,7 @@ export const handleCollection = async (c: Context) => {
         {
             walletAddress: OPEN_LOAN_WALLET_ADDRESS,
             incomingAmount: {
-                value: "1",
+                value: amount.toString(),
                 assetCode: "USD",
                 assetScale: 2,
             },
@@ -97,25 +102,28 @@ export const handleCollection = async (c: Context) => {
                 start: ["redirect"],
                 finish: {
                   method: "redirect",
-                  uri: `${BASE_URL}/auth/${customerWalletAddress.id}`,
+                  uri: `${BASE_URL}/auth/${customerId}`,
                   nonce: v4(),
                 },
               },
             },
           );
-          db[outgoingPaymentGrant['interact'].finish as string] = {
+          db[customerId] = {
             grant: outgoingPaymentGrant,
             quote,
+            totalAmount: amount,
+            agreementType,
           }
+          console.log(outgoingPaymentGrant)
 
 
-          c.json({
+          return c.json({
             redirect: outgoingPaymentGrant['interact'].redirect
           })
     }
     catch (error) {
         console.log(error)
-        c.text(`Internal Server Error. ${error}`, 500)
+        return c.text(`Internal Server Error. ${error}`, 500)
     }
 
 };

@@ -4,28 +4,28 @@ import { CUSTOMER_WALLET_ADDRESS, OPEN_LOAN_WALLET_ADDRESS } from '../util/const
 import { db } from '../app';
 
 
-export const handleGrantAuth = async (c: Context) => {
-    console.log(`[handleGrantAuth]`)
+export const handleInteraction = async (c: Context) => {
     const interactRef = c.req.query('interact_ref') 
-    const walletId = c.req.param('walletId')
+    const id = c.req.param('id')
+    console.log(`[handleInteraction] for wallet ${id} and interaction reference ${interactRef}`)
 
-    const { grant: outgoingPaymentGrant, quote } = db[walletId]
+    const { grant: outgoingPaymentGrant, quote } = db[id]
     try {
         const client = await createOpenPaymentsClient();
-        const continuedGrant = await client.grant.continue(
-        {
-            accessToken: outgoingPaymentGrant.continue.access_token.value,
-            url: outgoingPaymentGrant.continue.uri,
-        },
-        {
-            interact_ref: interactRef,
-        },
+        const continuedGrant: any = await client.grant.continue(
+            {
+                accessToken: outgoingPaymentGrant.continue.access_token.value,
+                url: outgoingPaymentGrant.continue.uri,
+            },
+            {
+                interact_ref: interactRef,
+            },
         );
     
         const outgoingPayment = await client.outgoingPayment.create(
         {
             url: new URL(CUSTOMER_WALLET_ADDRESS).origin,
-            accessToken: continuedGrant.continue.access_token.value,
+            accessToken: continuedGrant['access_token'].value,
         },
         {
             walletAddress: CUSTOMER_WALLET_ADDRESS,
@@ -33,10 +33,10 @@ export const handleGrantAuth = async (c: Context) => {
         },
         );
         console.log(outgoingPayment)
-        c.text("OK", 200)
+        return c.json(outgoingPayment, 200)
     }
     catch (error) {
         console.log(error)
-        c.text(`Internal Server Error. ${error}`, 500)
+        return c.text(`Internal Server Error. ${error}`, 500)
     }
 };
