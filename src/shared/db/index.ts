@@ -6,7 +6,7 @@ class Database {
   private filePath: string;
 
   private constructor() {
-    this.filePath = path.join(process.cwd(), "db.json");
+    this.filePath = path.join(process.cwd(), "/src/shared/db/db.json");
   }
 
   public static getInstance(): Database {

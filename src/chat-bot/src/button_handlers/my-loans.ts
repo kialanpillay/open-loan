@@ -7,6 +7,7 @@ import {
   updateLoanRepaymentSchedule,
 } from "../services/loans";
 import { AgreementType } from "../services/types";
+import { initialCollection } from "../../../shared/interledger/collection/initial";
 
 class MyLoans {
   async sendMenu(msg: TelegramBot.Message) {
@@ -97,6 +98,11 @@ class MyLoans {
       );
       bot.once("message", async (msg) => {
         const walletAddress = msg.text;
+        const redirectUrl = await initialCollection(
+          Number(loanAmount),
+          0.4,
+          walletAddress
+        );
         await presentLoanOutcome(loanAmount, loanReason, walletAddress);
       });
     };

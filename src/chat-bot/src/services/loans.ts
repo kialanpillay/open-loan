@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { db } from "../db";
+
 import {
   FixedRepaymentSchedule,
   Loan,
@@ -7,6 +7,7 @@ import {
   VariableRepaymentSchedule,
 } from "./types";
 import { v4 as uuidv4 } from "uuid";
+import { db } from "../../../shared/db";
 
 export async function createLoan(
   userId: number,
