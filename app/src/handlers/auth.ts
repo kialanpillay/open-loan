@@ -23,16 +23,22 @@ export const handleInteraction = async (c: Context) => {
         );
     
         const outgoingPayment = await client.outgoingPayment.create(
-        {
-            url: new URL(CUSTOMER_WALLET_ADDRESS).origin,
-            accessToken: continuedGrant['access_token'].value,
-        },
-        {
-            walletAddress: CUSTOMER_WALLET_ADDRESS,
-            quoteId: quote.id,
-        },
+            {
+                url: new URL(CUSTOMER_WALLET_ADDRESS).origin,
+                accessToken: continuedGrant['access_token'].value,
+            },
+            {
+                walletAddress: CUSTOMER_WALLET_ADDRESS,
+                quoteId: quote.id,
+            },
         );
+        console.log(continuedGrant)
         console.log(outgoingPayment)
+        db[id] = {
+            ...db[id],
+            accessToken: continuedGrant['access_token'].value,
+            manageUrl: continuedGrant['access_token'].manage,
+        }
         return c.json(outgoingPayment, 200)
     }
     catch (error) {

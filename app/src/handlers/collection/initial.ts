@@ -18,7 +18,7 @@ export const handleInitialCollection = async (c: Context) => {
         const customerWalletAddress = await client.walletAddress.get({
             url: CUSTOMER_WALLET_ADDRESS,
         });
-        const customerId = customerWalletAddress.id.substring(customerWalletAddress.id.lastIndexOf("/")+1)
+        const customerId = customerWalletAddress.id.substring(customerWalletAddress.id.lastIndexOf("/") + 1)
     
         const incomingPaymentGrant: any = await client.grant.request(
             {
@@ -44,7 +44,7 @@ export const handleInitialCollection = async (c: Context) => {
         {
             walletAddress: OPEN_LOAN_WALLET_ADDRESS,
             incomingAmount: {
-                value: amount.toString(),
+                value: "100", // USD1 initiation payment
                 assetCode: "USD",
                 assetScale: 2,
             },
@@ -113,9 +113,10 @@ export const handleInitialCollection = async (c: Context) => {
             quote,
             totalAmount: amount,
             agreementType,
+            accessToken: outgoingPaymentGrant['access_token'].value,
+            manageUrl: outgoingPaymentGrant['access_token'].url,
           }
           console.log(outgoingPaymentGrant)
-
 
           return c.json({
             redirect: outgoingPaymentGrant['interact'].redirect
