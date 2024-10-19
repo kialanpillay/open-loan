@@ -55,20 +55,39 @@ bot.onText(/\/start/, (msg) => {
       ],
       resize_keyboard: true,
       one_time_keyboard: false,
-      parse_mode: "HTML",
     },
   };
 
-  bot.sendMessage(chatId, welcomeMessage, options);
+  bot.sendMessage(chatId, welcomeMessage, {
+    ...options,
+    parse_mode: "HTML",
+  });
 });
 
-bot.on("callback_query", (callbackQuery) => {
+bot.on("callback_query", async (callbackQuery) => {
   const data = callbackQuery.data;
   const msg = callbackQuery.message;
 
   switch (data) {
     case "new_loan":
-      myLoansButtonHandler.newLoanConversationHandler(msg);
+      await myLoansButtonHandler.newLoanConversationHandler(msg);
+      break;
+    case data.match(/^variable_repayments_.+/)?.input:
+      await myLoansButtonHandler.variableRepaymentConversationHandler(
+        callbackQuery
+      );
+      break;
+    case data.match(/^fixed_repayments_.+/)?.input:
+      await myLoansButtonHandler.fixedRepaymentConversationHandler(
+        callbackQuery
+      );
+      break;
+    case data.match(/^agree_.+/)?.input:
+      await bot.sendMessage(
+        msg.chat.id,
+        "Great news! Your funds will be sent to you shortly. 🚀"
+      );
+      break;
     default:
       // Add default case logic if necessary
       break;
