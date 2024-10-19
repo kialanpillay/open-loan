@@ -12,9 +12,7 @@ import { db } from "../../../shared/db";
 export async function createLoan(
   userId: number,
   principal: number,
-  walletAddress: string,
-  reason: string,
-  customerId: string
+  reason: string
 ): Promise<Loan> {
   const id = uuidv4();
 
@@ -41,10 +39,8 @@ export async function createLoan(
     principal,
     remaining: principal,
     interestRate: 0.1,
-    walletAddress,
     reason,
     description: completion.choices[0].message.content,
-    customerId,
   };
 
   const data = db.readData();
@@ -52,6 +48,18 @@ export async function createLoan(
   db.updateData(data);
 
   return loan;
+}
+
+export async function updateLoanGrants(loanId: string, grants: any) {
+  const data = db.readData();
+
+  for (const loan of data["loans"]) {
+    if (loan.id === loanId) {
+      loan.grants = { ...loan.grants, ...grants };
+    }
+  }
+
+  db.updateData(data);
 }
 
 export async function getLoansByUserId(userId: number): Promise<Loan[]> {

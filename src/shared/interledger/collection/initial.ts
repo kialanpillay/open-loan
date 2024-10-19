@@ -1,15 +1,10 @@
 import { v4 } from "uuid";
 import { createOpenPaymentsClient } from "../infrastructure/client";
-import {
-  OPEN_LOAN_WALLET_ADDRESS,
-  CUSTOMER_WALLET_ADDRESS,
-  BASE_URL,
-} from "../util/constants";
-import { db } from "../../db";
+import { OPEN_LOAN_WALLET_ADDRESS, BASE_URL } from "../util/constants";
 
 export async function initialCollection(
+  loanId: string,
   totalAmount: number,
-  initialPayment: number,
   walletAddress: string
 ) {
   const client = await createOpenPaymentsClient();
@@ -73,24 +68,18 @@ export async function initialCollection(
         start: ["redirect"],
         finish: {
           method: "redirect",
-          uri: `${BASE_URL}/auth/${customerId}`,
+          uri: `${BASE_URL}/auth/${loanId}`,
           nonce: v4(),
         },
       },
     }
   );
 
-  const data = db.readData();
-  data[customerId] = {
+  return {
     incomingPayment,
     outgoingPaymentGrant,
     totalAmount,
     walletAddress,
-  };
-  db.updateData(data);
-
-  return {
-    redirect: outgoingPaymentGrant["interact"].redirect,
     customerId,
   };
 }

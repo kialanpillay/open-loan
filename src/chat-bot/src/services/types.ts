@@ -20,10 +20,9 @@ export type Loan = {
   principal: number; // Original loan amount
   remaining: number; // Outstanding balance
   interestRate: number; // Annualised interest rates
-  walletAddress: string;
   reason: string;
   description: string;
-  customerId: string;
+  grants?: any;
   repaymentType?: AgreementType;
   repaymentPlan?: FixedRepaymentSchedule | VariableRepaymentSchedule;
 };

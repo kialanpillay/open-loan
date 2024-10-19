@@ -1,62 +1,63 @@
 {
-  "loans": [],
-  "sam": {
-    "incomingPayment": {
-      "id": "https://ilp.interledger-test.dev/incoming-payments/a0d45d6b-7689-4043-a82a-bd8d6a6cd5c4",
-      "walletAddress": "https://ilp.interledger-test.dev/openloan",
-      "incomingAmount": {
-        "value": "1000",
-        "assetCode": "USD",
-        "assetScale": 2
-      },
-      "receivedAmount": {
-        "value": "0",
-        "assetCode": "USD",
-        "assetScale": 2
-      },
-      "completed": false,
-      "createdAt": "2024-10-19T20:14:14.600Z",
-      "updatedAt": "2024-10-19T20:14:14.600Z",
-      "expiresAt": "2024-10-19T20:24:14.308Z",
-      "methods": [
-        {
-          "type": "ilp",
-          "ilpAddress": "test.net.Op6gfpA-nPm1216ocFxxQQDlXJh1rIFec7vO1iLm2DFFnjyhzAZOS4iE07s-3Iz3AheE8M_jFZNWDdWJqaCcScIRQiD7cWo",
-          "sharedSecret": "vsbgWX_pMXEYMzRq2APrZUTCtXgUqOO3b92dyyAucOo"
-        }
-      ]
-    },
-    "outgoingPaymentGrant": {
-      "interact": {
-        "redirect": "https://auth.interledger-test.dev/interact/009cfaa0-3cf8-4b96-8c08-3bb1c63b098b/4BF3CF4CEA03CE3A?clientName=Open+Loan&clientUri=https%3A%2F%2Filp.interledger-test.dev%2Fopenloan",
-        "finish": "4BF3CF4CEA03CE3A"
-      },
-      "continue": {
-        "access_token": {
-          "value": "0ECA66CBCC278FA2C26B"
+  "loans": [
+    {
+      "id": "e765b80d-81bc-4ac8-adec-75e895546ef9",
+      "userId": 1753711691,
+      "principal": 1000,
+      "remaining": 1000,
+      "interestRate": 0.1,
+      "reason": "test",
+      "description": "test",
+      "grants": {
+        "incomingPayment": {
+          "id": "https://ilp.interledger-test.dev/incoming-payments/738bc53c-5701-4175-8cf7-1e1cc99237bf",
+          "walletAddress": "https://ilp.interledger-test.dev/openloan",
+          "incomingAmount": {
+            "value": "100000",
+            "assetCode": "USD",
+            "assetScale": 2
+          },
+          "receivedAmount": {
+            "value": "0",
+            "assetCode": "USD",
+            "assetScale": 2
+          },
+          "completed": false,
+          "createdAt": "2024-10-19T21:14:23.334Z",
+          "updatedAt": "2024-10-19T21:14:23.334Z",
+          "expiresAt": "2024-10-19T21:24:23.014Z",
+          "methods": [
+            {
+              "type": "ilp",
+              "ilpAddress": "test.net.a-B-0EINjLoSUXZtU0SQqI1nUV2WtjOvPnmq4YS9dR_5oVU2QOviZ5B7xwhYZBxtjZJrkA97AZndE-4xUOvY7KiPuGg-YwI",
+              "sharedSecret": "JqRHwemT0Y53-IsxN7_8cxHfWFkxUd2Q4WkPa2mgQL4"
+            }
+          ]
         },
-        "uri": "https://auth.interledger-test.dev/continue/22469dc3-0a15-4e38-a822-75daaed62445",
-        "wait": 1
+        "outgoingPaymentGrant": {
+          "interact": {
+            "redirect": "https://auth.interledger-test.dev/interact/e65883cf-74ed-46ad-a980-7774022b3e3b/A4839EB8BAFA3120?clientName=Open+Loan&clientUri=https%3A%2F%2Filp.interledger-test.dev%2Fopenloan",
+            "finish": "A4839EB8BAFA3120"
+          },
+          "continue": {
+            "access_token": {
+              "value": "D35E01497FBA78231761"
+            },
+            "uri": "https://auth.interledger-test.dev/continue/07f49d53-e6dd-4457-ad90-49608d9a1151",
+            "wait": 1
+          }
+        },
+        "totalAmount": 100000,
+        "walletAddress": "https://ilp.interledger-test.dev/sam",
+        "customerId": "sam",
+        "accessToken": "A945D16FD770AB3E82C6",
+        "manageUrl": "https://auth.interledger-test.dev/token/ed8bd40c-40cf-4205-96cb-89e37ac177f9"
+      },
+      "repaymentType": "VARIABLE",
+      "repaymentPlan": {
+        "type": "VARIABLE",
+        "percentageOfDeposits": 0.1
       }
-    },
-    "quote": {
-      "id": "https://ilp.interledger-test.dev/quotes/7dda6bab-9cf2-4ebb-b08c-0f9a5e055a33",
-      "walletAddress": "https://ilp.interledger-test.dev/f331be9c",
-      "receiveAmount": {
-        "value": "1000",
-        "assetCode": "USD",
-        "assetScale": 2
-      },
-      "debitAmount": {
-        "value": "926",
-        "assetCode": "EUR",
-        "assetScale": 2
-      },
-      "receiver": "https://ilp.interledger-test.dev/incoming-payments/a0d45d6b-7689-4043-a82a-bd8d6a6cd5c4",
-      "expiresAt": "2024-10-19T20:19:16.137Z",
-      "createdAt": "2024-10-19T20:14:16.137Z",
-      "method": "ilp"
-    },
-    "totalAmount": 1000
-  }
+    }
+  ]
 }
