@@ -1,6 +1,8 @@
 import type { Context } from "hono";
 import { createOpenPaymentsClient } from "../../../shared/interledger/infrastructure/client";
 import { db } from "../../../shared/db";
+import { Layout } from "../components/Layout";
+import { Status } from "../components/Status";
 
 export const handleInteraction = async (c: Context) => {
   const interactRef = c.req.query("interact_ref");
@@ -50,7 +52,11 @@ export const handleInteraction = async (c: Context) => {
 
     db.updateData(data);
 
-    return c.json(outgoingPayment, 200);
+    return c.render(
+      <Layout>
+          <Status status={outgoingPayment.failed ? 'Failed' : 'Success'}/>
+      </Layout>
+    );
   } catch (error) {
     console.log(error);
     return c.text(`Internal Server Error. ${error}`, 500);
