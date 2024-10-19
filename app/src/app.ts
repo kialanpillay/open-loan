@@ -9,16 +9,6 @@ import { handleInteraction } from './handlers/auth';
 import { handleRecurringCollection } from './handlers/collection/recurring';
 
 const app = new Hono();
-
-export const db: Record<string, {
-    grant?: any,
-    quote?: any
-    agreementType?: 'FIXED' | 'VARIABLE'
-    totalAmount?: number
-    manageUrl?: string,
-    accessToken?: string,
-}> = {}
-
 // CORS middleware
 app.use(
     '*',

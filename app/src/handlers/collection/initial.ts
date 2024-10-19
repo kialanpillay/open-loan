@@ -2,12 +2,14 @@ import type { Context } from 'hono';
 import { createOpenPaymentsClient } from '../../infrastructure/client'
 import { BASE_URL, CUSTOMER_WALLET_ADDRESS, OPEN_LOAN_WALLET_ADDRESS } from '../../util/constants';
 import { v4 } from 'uuid';
-import { db } from '../../app'
+import { db } from '../../server'
+import * as fs from 'fs';
+import * as path from 'path';
 
 export const handleInitialCollection = async (c: Context) => {
-    const body = await c.req.parseBody();
-    const amount = Number(body.amount) * 100
-    const agreementType = body.agreementType as 'FIXED' | 'VARIABLE'
+    const body = await c.req.json();
+    const totalAmount = (Number(body.amount)) * 100
+    const agreementType = body.agreement
     
     console.log("[collection/initial] handling request", body)
     try {
@@ -37,19 +39,19 @@ export const handleInitialCollection = async (c: Context) => {
           );
         
         const incomingPayment = await client.incomingPayment.create(
-        {
-            url: new URL(OPEN_LOAN_WALLET_ADDRESS).origin,
-            accessToken: incomingPaymentGrant['access_token'].value,
-        },
-        {
-            walletAddress: OPEN_LOAN_WALLET_ADDRESS,
-            incomingAmount: {
-                value: "100", // USD1 initiation payment
-                assetCode: "USD",
-                assetScale: 2,
+            {
+                url: new URL(OPEN_LOAN_WALLET_ADDRESS).origin,
+                accessToken: incomingPaymentGrant['access_token'].value,
             },
-            expiresAt: new Date(Date.now() + 60_000 * 10).toISOString(),
-        },
+            {
+                walletAddress: OPEN_LOAN_WALLET_ADDRESS,
+                incomingAmount: {
+                    value: totalAmount.toString(), // Agreement Total
+                    assetCode: openLoanWalletAddress.assetCode,
+                    assetScale: openLoanWalletAddress.assetScale,
+                },
+                expiresAt: new Date(Date.now() + 60_000 * 10).toISOString(),
+            },
         );
     
         const quoteGrant: any = await client.grant.request(
@@ -77,9 +79,15 @@ export const handleInitialCollection = async (c: Context) => {
               method: "ilp",
               walletAddress: CUSTOMER_WALLET_ADDRESS,
               receiver: incomingPayment.id,
+              debitAmount: {
+                value: "100", // Agreement Initiation Payment
+                assetCode: customerWalletAddress.assetCode,
+                assetScale: customerWalletAddress.assetScale,
+              }
             },
           );
     
+          const currentDate = new Date().toISOString()
           const outgoingPaymentGrant: any = await client.grant.request(
             {
               url: customerWalletAddress.authServer,
@@ -94,6 +102,7 @@ export const handleInitialCollection = async (c: Context) => {
                     limits: {
                       debitAmount: quote.debitAmount,
                       receiveAmount: quote.receiveAmount,
+                      interval: `R12/${currentDate}/P1M`,
                     },
                   },
                 ],
@@ -108,15 +117,15 @@ export const handleInitialCollection = async (c: Context) => {
               },
             },
           );
+
           db[customerId] = {
-            grant: outgoingPaymentGrant,
+            incomingPayment,
+            outgoingPaymentGrant,
             quote,
-            totalAmount: amount,
+            totalAmount,
             agreementType,
-            accessToken: outgoingPaymentGrant['access_token'].value,
-            manageUrl: outgoingPaymentGrant['access_token'].url,
           }
-          console.log(outgoingPaymentGrant)
+          fs.writeFileSync(path.join(__dirname, '..', '..', 'db.json'), JSON.stringify(db, null, 2), 'utf8');
 
           return c.json({
             redirect: outgoingPaymentGrant['interact'].redirect

@@ -1,15 +1,16 @@
 import type { Context } from 'hono';
 import { createOpenPaymentsClient } from '../infrastructure/client'
-import { CUSTOMER_WALLET_ADDRESS, OPEN_LOAN_WALLET_ADDRESS } from '../util/constants';
-import { db } from '../app';
-
+import { CUSTOMER_WALLET_ADDRESS } from '../util/constants';
+import { db } from '../server';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export const handleInteraction = async (c: Context) => {
     const interactRef = c.req.query('interact_ref') 
     const id = c.req.param('id')
     console.log(`[handleInteraction] for wallet ${id} and interaction reference ${interactRef}`)
 
-    const { grant: outgoingPaymentGrant, quote } = db[id]
+    const { outgoingPaymentGrant, quote } = db[id]
     try {
         const client = await createOpenPaymentsClient();
         const continuedGrant: any = await client.grant.continue(
@@ -32,13 +33,13 @@ export const handleInteraction = async (c: Context) => {
                 quoteId: quote.id,
             },
         );
-        console.log(continuedGrant)
-        console.log(outgoingPayment)
         db[id] = {
             ...db[id],
             accessToken: continuedGrant['access_token'].value,
             manageUrl: continuedGrant['access_token'].manage,
         }
+        fs.writeFileSync(path.join(__dirname, '..', 'db.json'), JSON.stringify(db, null, 2), 'utf8');
+
         return c.json(outgoingPayment, 200)
     }
     catch (error) {
