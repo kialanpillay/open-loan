@@ -6,27 +6,7 @@ import {
 } from "../../../../chat-bot/src/services/loans";
 import { Layout } from "../../components/Layout";
 import { Status } from "../../components/Status";
-
-const sendMessage = async (chatId: number, loanId: string) => {
-  const loan = await getLoanByLoanId(loanId);
-  const message = `<b>One more step! ⏳</b>\n\nOpen Loan requires access to your transaction history:\n\n${loan.grants.userIncomingPaymentsGrant["interact"].redirect}`;
-
-  const telegramApiUrl = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`;
-  const response = await fetch(telegramApiUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text: message,
-    }),
-  });
-
-  if (!response.ok) {
-    console.error("Failed to send message to Telegram:", response.statusText);
-  }
-};
+import { sendLoanOutcomeToUser } from "../../services/notifications";
 
 export const handlePaymentInteraction = async (c: Context) => {
   const interactRef = c.req.query("interact_ref");
@@ -74,7 +54,7 @@ export const handlePaymentInteraction = async (c: Context) => {
       manageUrl: continuedGrant["access_token"].manage,
     });
 
-    await sendMessage(loan.userId, loan.id);
+    await sendLoanOutcomeToUser(loan.userId, loan.id);
 
     return c.render(
       <Layout>
