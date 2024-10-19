@@ -41,6 +41,7 @@ export async function createLoan(
     interestRate: 0.1,
     reason,
     description: completion.choices[0].message.content,
+    createAt: new Date(),
   };
 
   const data = db.readData();

@@ -6,7 +6,10 @@ import {
 } from "../../../../chat-bot/src/services/loans";
 import { Layout } from "../../components/Layout";
 import { Status } from "../../components/Status";
-import { sendLoanOutcomeToUser } from "../../services/notifications";
+import {
+  sendLoanOutcomeToUser,
+  sendTransactionAuthorisationRequest,
+} from "../../services/notifications";
 
 export const handlePaymentInteraction = async (c: Context) => {
   const interactRef = c.req.query("interact_ref");
@@ -54,7 +57,7 @@ export const handlePaymentInteraction = async (c: Context) => {
       manageUrl: continuedGrant["access_token"].manage,
     });
 
-    await sendLoanOutcomeToUser(loan.userId, loan.id);
+    await sendTransactionAuthorisationRequest(loan.userId, loan.id);
 
     return c.render(
       <Layout>
