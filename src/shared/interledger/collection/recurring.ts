@@ -1,22 +1,15 @@
-import path from "path";
 import { db } from "../../db";
 import { createOpenPaymentsClient } from "../infrastructure/client";
-import { CUSTOMER_WALLET_ADDRESS } from "../util/constants";
 
-export async function recurringCollection(walletAddress: string, debitAmount: number) {
-  const customerId = walletAddress.substring(
-    walletAddress.lastIndexOf("/") + 1
-  );
+import { getLoanByLoanId } from "../../../chat-bot/src/services/loans";
 
-  const data = db.readData();
-  const {
-    incomingPayment,
-    accessToken,
-    manageUrl,
-  } = data[customerId];
+export async function recurringCollection(debitAmount: number, loanId: string) {
+  const loan = await getLoanByLoanId(loanId);
+  const { incomingPayment, accessToken, manageUrl, walletAddress } =
+    loan.grants;
   const client = await createOpenPaymentsClient();
   const customerWalletAddress = await client.walletAddress.get({
-    url: CUSTOMER_WALLET_ADDRESS,
+    url: walletAddress,
   });
 
   const token = await client.token.rotate({
@@ -24,20 +17,18 @@ export async function recurringCollection(walletAddress: string, debitAmount: nu
     accessToken: accessToken as string,
   });
 
-  data[customerId] = {
-    ...data[customerId],
-    accessToken: token.access_token.value,
-    manageUrl: token.access_token.manage,
-  };
+  const data = db.readData();
+  loan.grants.accessToken = token.access_token.value;
+  loan.grants.manageUrl = token.access_token.manage;
   db.updateData(data);
 
   const outgoingPayment = await client.outgoingPayment.create(
     {
-      url: new URL(CUSTOMER_WALLET_ADDRESS).origin,
+      url: new URL(walletAddress).origin,
       accessToken: token.access_token.value,
     },
     {
-      walletAddress: CUSTOMER_WALLET_ADDRESS,
+      walletAddress: walletAddress,
       incomingPayment: incomingPayment.id as string,
       debitAmount: {
         value: debitAmount.toString(),

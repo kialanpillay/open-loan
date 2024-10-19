@@ -22,6 +22,7 @@ export type Loan = {
   interestRate: number; // Annualised interest rates
   reason: string;
   description: string;
+  createAt: Date;
   grants?: any;
   repaymentType?: AgreementType;
   repaymentPlan?: FixedRepaymentSchedule | VariableRepaymentSchedule;

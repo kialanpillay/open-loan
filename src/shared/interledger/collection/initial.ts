@@ -42,6 +42,7 @@ export async function initialCollection(
       access_token: {
         access: [
           {
+            identifier: customerWalletAddress.id,
             type: "incoming-payment",
             actions: ["list", "list-all"],
           },

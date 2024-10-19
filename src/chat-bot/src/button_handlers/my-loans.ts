@@ -95,7 +95,7 @@ class MyLoans {
     const askWalletAddress = async (loanAmount: string, loanReason: string) => {
       await bot.sendMessage(
         msg.chat.id,
-        "Please enter your Open Payments wallet address.\n\nA $0.4 payment will be deducted to ensure your wallet is active."
+        "Please enter your Open Payments wallet address.\n\nA small payment will be deducted to ensure your wallet is active."
       );
       bot.once("message", async (msg) => {
         const walletAddress = msg.text;

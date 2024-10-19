@@ -1,16 +1,17 @@
 {
   "loans": [
     {
-      "id": "e765b80d-81bc-4ac8-adec-75e895546ef9",
+      "id": "cb459340-be07-47b9-b612-b0eeba8bdd61",
       "userId": 1753711691,
       "principal": 1000,
       "remaining": 1000,
       "interestRate": 0.1,
       "reason": "test",
-      "description": "test",
+      "description": "Invalid request.",
+      "createAt": "2024-10-19T23:09:38.151Z",
       "grants": {
         "incomingPayment": {
-          "id": "https://ilp.interledger-test.dev/incoming-payments/738bc53c-5701-4175-8cf7-1e1cc99237bf",
+          "id": "https://ilp.interledger-test.dev/incoming-payments/6a4c3d61-2f1a-4dfc-a1f6-1483f59502e3",
           "walletAddress": "https://ilp.interledger-test.dev/openloan",
           "incomingAmount": {
             "value": "100000",
@@ -23,42 +24,50 @@
             "assetScale": 2
           },
           "completed": false,
-          "createdAt": "2024-10-19T21:14:23.334Z",
-          "updatedAt": "2024-10-19T21:14:23.334Z",
-          "expiresAt": "2024-10-19T21:24:23.014Z",
+          "createdAt": "2024-10-19T23:09:40.252Z",
+          "updatedAt": "2024-10-19T23:09:40.252Z",
+          "expiresAt": "2024-10-19T23:19:39.938Z",
           "methods": [
             {
               "type": "ilp",
-              "ilpAddress": "test.net.a-B-0EINjLoSUXZtU0SQqI1nUV2WtjOvPnmq4YS9dR_5oVU2QOviZ5B7xwhYZBxtjZJrkA97AZndE-4xUOvY7KiPuGg-YwI",
-              "sharedSecret": "JqRHwemT0Y53-IsxN7_8cxHfWFkxUd2Q4WkPa2mgQL4"
+              "ilpAddress": "test.net.m9RF_X4Mu2DCgD5Ih3N-zW0vSNkazqtFZZfhLhRyH0EfSFbQTidGZ3qdo65Uev_DOwrWzrFbxikKgHmtkz8V67R6cETza9Y",
+              "sharedSecret": "dKZLB-7KqsF5mfTzV04-JbnDxGKapvJZ0OBvKRWsbVk"
             }
           ]
         },
         "outgoingPaymentGrant": {
           "interact": {
-            "redirect": "https://auth.interledger-test.dev/interact/e65883cf-74ed-46ad-a980-7774022b3e3b/A4839EB8BAFA3120?clientName=Open+Loan&clientUri=https%3A%2F%2Filp.interledger-test.dev%2Fopenloan",
-            "finish": "A4839EB8BAFA3120"
+            "redirect": "https://auth.interledger-test.dev/interact/ece9f4f3-dc2e-4272-b4ba-734f781f3edb/ED68224980105E53?clientName=Open+Loan&clientUri=https%3A%2F%2Filp.interledger-test.dev%2Fopenloan",
+            "finish": "ED68224980105E53"
           },
           "continue": {
             "access_token": {
-              "value": "D35E01497FBA78231761"
+              "value": "D13B34C5D8D48BE04CD8"
             },
-            "uri": "https://auth.interledger-test.dev/continue/07f49d53-e6dd-4457-ad90-49608d9a1151",
+            "uri": "https://auth.interledger-test.dev/continue/4e1c2e99-f0e5-4c84-a1d1-bbbce886af8e",
             "wait": 1
           }
         },
         "totalAmount": 100000,
         "walletAddress": "https://ilp.interledger-test.dev/sam",
         "customerId": "sam",
-        "accessToken": "A945D16FD770AB3E82C6",
-        "manageUrl": "https://auth.interledger-test.dev/token/ed8bd40c-40cf-4205-96cb-89e37ac177f9",
-        "transactionsAccessToken": "E43B6C4447BC037CE0B5",
-        "transactionsManageUrl": "https://auth.interledger-test.dev/token/38ac3d22-60d0-4118-83ac-96846dd6bba1"
-      },
-      "repaymentType": "VARIABLE",
-      "repaymentPlan": {
-        "type": "VARIABLE",
-        "percentageOfDeposits": 0.1
+        "userIncomingPaymentsGrant": {
+          "interact": {
+            "redirect": "https://auth.interledger-test.dev/interact/df6f3b83-461c-4f7d-bef0-aabb0ed66ae1/1E9D5A2CA64FDBB7?clientName=Open+Loan&clientUri=https%3A%2F%2Filp.interledger-test.dev%2Fopenloan",
+            "finish": "1E9D5A2CA64FDBB7"
+          },
+          "continue": {
+            "access_token": {
+              "value": "CC283B2A587E591F15E3"
+            },
+            "uri": "https://auth.interledger-test.dev/continue/493a71c4-81a3-4aa3-8ca6-a4969137681b",
+            "wait": 1
+          }
+        },
+        "accessToken": "3EF727B18D6837AA278C",
+        "manageUrl": "https://auth.interledger-test.dev/token/d85b3bcf-2aef-4b5f-b288-5488adbb8e61",
+        "transactionsAccessToken": "587D441474C315458627",
+        "transactionsManageUrl": "https://auth.interledger-test.dev/token/9a5551de-dd4a-4b26-8c03-c0ded8a8e00e"
       }
     }
   ]
