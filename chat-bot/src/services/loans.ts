@@ -5,6 +5,7 @@ import {
   AgreementType,
   VariableRepaymentSchedule,
 } from "./types";
+import { v4 as uuidv4 } from "uuid";
 
 export async function createLoan(
   userId: number,
@@ -12,25 +13,28 @@ export async function createLoan(
   walletAddress: string,
   reason: string
 ): Promise<Loan> {
-  const loan: Loan = { userId, amount, walletAddress, reason };
-  const doc_ref = await db.collection("loans").doc();
-  await doc_ref.set(loan);
-  loan.id = doc_ref.id;
+  const id = uuidv4();
+  const loan: Loan = { id, userId, amount, walletAddress, reason };
+
+  const data = db.readData();
+  data["loans"].push(loan);
+  db.updateData(data);
+
   return loan;
 }
 
 export async function getLoansByUserId(userId: number): Promise<Loan[]> {
-  const querySnapshot = await db
-    .collection("loans")
-    .where("userId", "==", userId)
-    .get();
-  const loans: Loan[] = [];
-  querySnapshot.forEach((doc) => {
-    const docData = doc.data() as Loan;
-    docData.id = doc.id;
-    loans.push(docData);
-  });
-  return loans;
+  const data = db.readData();
+  const allLoans = data["loans"];
+
+  const userLoans = [];
+  for (const loan of allLoans) {
+    if (loan.userId === userId) {
+      userLoans.push(loan);
+    }
+  }
+
+  return userLoans;
 }
 
 export async function updateLoanRepaymentSchedule(
@@ -39,10 +43,18 @@ export async function updateLoanRepaymentSchedule(
   fixed?: FixedRepaymentSchedule,
   variable?: VariableRepaymentSchedule
 ) {
-  const doc_ref = await db.collection("loans").doc(loanId);
-  if (repaymentType === AgreementType.FIXED) {
-    await doc_ref.update({ repaymentType, fixed });
-  } else if (repaymentType === AgreementType.VARIABLE) {
-    await doc_ref.update({ repaymentType, variable });
+  const data = db.readData();
+  const allLoans = data["loans"];
+  for (const loan of allLoans) {
+    if (loan["id"] === loanId) {
+      if (repaymentType === AgreementType.FIXED) {
+        loan["repaymentType"] = repaymentType;
+        loan["fixed"] = fixed;
+      } else if (repaymentType === AgreementType.VARIABLE) {
+        loan["repaymentType"] = repaymentType;
+        loan["variable"] = variable;
+      }
+    }
   }
+  db.updateData(data);
 }
