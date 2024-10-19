@@ -8,7 +8,6 @@ import {
 } from "../services/loans";
 import { AgreementType } from "../services/types";
 import { initialCollection } from "../../../shared/interledger/collection/initial";
-import { db } from "../../../shared/db";
 
 class MyLoans {
   async sendMenu(msg: TelegramBot.Message) {
