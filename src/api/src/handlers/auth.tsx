@@ -4,6 +4,8 @@ import {
   getLoanByLoanId,
   updateLoanGrants,
 } from "../../../chat-bot/src/services/loans";
+import { Layout } from "../components/Layout";
+import { Status } from "../components/Status";
 
 const sendLoanOutcomeToUser = async (chatId: number, loanId: string) => {
   const outcomeMessage =
@@ -94,7 +96,11 @@ export const handleInteraction = async (c: Context) => {
     // Send loan outcome to the user
     await sendLoanOutcomeToUser(loan.userId, loan.id);
 
-    return c.json(outgoingPayment, 200);
+    return c.render(
+      <Layout>
+        <Status status={outgoingPayment.failed ? "Failed" : "Success"} />
+      </Layout>
+    );
   } catch (error) {
     console.log(error);
     return c.text(`Internal Server Error. ${error}`, 500);
