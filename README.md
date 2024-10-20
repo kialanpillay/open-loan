@@ -2,6 +2,7 @@
 
 Open Loan is a micro-financing product designed to disrupt the cash economy and optimize collections. In South Africa, where cash accounts for 50% of money movements in the informal sector, informal traders often struggle to secure financing, while lenders face excessive exposure to delinquent debtors. Open Loan leverages the transparency of Open Payments API standards to increase access to low-cost, instant micro-financing for informal traders and enhance lenders' ability to manage their books by offering smart collection mechanisms and flexible repayment arrangements.
 
+By empowering both the payee _and_ the payer, Open Loan seeks to contribute to a **sustainable** lending cycle to drives growth in local communities.
 ## Links
 
 - Presentation: [Google Slides](https://docs.google.com/presentation/d/10mcK7lIkoPe-3MagOSpyXuc6K5djryRbmXMfUY2fPNw/edit?usp=sharing).
@@ -25,6 +26,9 @@ By combining a highly accessible chat-based interface with loan repayment option
 
 4. Message https://t.me/open_loan_interledger_bot with the /start command.
 
+
+Under standard operating procedures, we'd use a structured datastore such as PostgreSQL or Firebase. For ease of replication, we elected to use a disk-based JSON approach. 
+
 ## Team members
 
 - [Kialan Pillay](https://github.com/kialanpillay)
@@ -40,4 +44,6 @@ We were able to execute on our original vision with minimal depatures from what 
 
 ## The Future
 
-We plan to expand the solution to more chat interfaces for increased market penetration and add support for different local languages. We also aim to develop an adaptive credit scoring solution to mitigate risk. Additionally, we will enhance the loan application component of the chatbot to include identity verification, user account transaction analysis, and business discovery, augmenting the data available for approval decisions.
+We plan to extend the solution with different chat interfaces for increased market penetration and add multi-lingual support. Modelling the internal ledger in TigerBeetle is a natural iteration and supports safe and correct concurrent transaction processing at scale.
+
+We also aim to develop an adaptive credit scoring solution to mitigate risk coupled with extensions to bot service facilitate user KYC and analytics. This data will be stored in a general-purposed database to for model training and inference. 
