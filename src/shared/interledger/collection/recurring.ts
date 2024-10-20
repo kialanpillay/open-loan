@@ -2,6 +2,8 @@ import { db } from "../../db";
 import { createOpenPaymentsClient } from "../infrastructure/client";
 
 import { getLoanByLoanId } from "../../../chat-bot/src/services/loans";
+import { createTigerBeetleClient } from "../../tigerbeetle/client";
+import { id } from "tigerbeetle-node";
 
 export async function recurringCollection(debitAmount: number, loanId: string) {
   console.log(
@@ -43,5 +45,26 @@ export async function recurringCollection(debitAmount: number, loanId: string) {
       },
     }
   );
+
+  if (!outgoingPayment.failed) {
+    const tigerBeetleClient = createTigerBeetleClient();
+    const transfers = [{
+      id: id(), 
+      debit_account_id: BigInt(loan.userId),
+      credit_account_id: 1n,
+      amount: BigInt(debitAmount / 100),
+      pending_id: 0n,
+      user_data_128: 0n,
+      user_data_64: 0n,
+      user_data_32: 0,
+      timeout: 0,
+      ledger: 1,
+      code: 720,
+      flags: 0,
+      timestamp: 0n,
+    }];
+    tigerBeetleClient.createTransfers(transfers)
+  }
+  
   return outgoingPayment;
 }

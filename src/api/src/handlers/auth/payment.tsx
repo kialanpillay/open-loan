@@ -7,15 +7,17 @@ import {
 import { Layout } from "../../components/Layout";
 import { Status } from "../../components/Status";
 import { sendTransactionAuthorisationRequest } from "../../services/notifications";
+import { createTigerBeetleClient } from "../../../../shared/tigerbeetle/client";
+import { id } from "tigerbeetle-node";
 
 export const handlePaymentInteraction = async (c: Context) => {
   const interactRef = c.req.query("interact_ref");
-  const id = c.req.param("id");
+  const loanId = c.req.param("id");
   console.log(
-    `[handlePaymentInteraction] for loan ${id} and interaction reference ${interactRef}`
+    `[handlePaymentInteraction] for loan ${loanId} and interaction reference ${interactRef}`
   );
 
-  const loan = await getLoanByLoanId(id);
+  const loan = await getLoanByLoanId(loanId);
 
   const { outgoingPaymentGrant, incomingPayment, walletAddress } = loan.grants;
   try {
@@ -49,10 +51,30 @@ export const handlePaymentInteraction = async (c: Context) => {
         },
       }
     );
-    updateLoanGrants(id, {
+    updateLoanGrants(loanId, {
       accessToken: continuedGrant["access_token"].value,
       manageUrl: continuedGrant["access_token"].manage,
     });
+
+    if (!outgoingPayment.failed) {
+      const tigerBeetleClient = createTigerBeetleClient();
+      const transfers = [{
+        id: id(), 
+        debit_account_id: BigInt(loan.userId),
+        credit_account_id: 1n,
+        amount: BigInt(40 / 100),
+        pending_id: 0n,
+        user_data_128: 0n,
+        user_data_64: 0n,
+        user_data_32: 0,
+        timeout: 0,
+        ledger: 1,
+        code: 720,
+        flags: 0,
+        timestamp: 0n,
+      }];
+      tigerBeetleClient.createTransfers(transfers)
+    }
 
     await sendTransactionAuthorisationRequest(loan.userId, loan.id);
 
