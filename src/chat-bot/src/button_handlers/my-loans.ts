@@ -7,8 +7,10 @@ import {
   updateLoanGrants,
   updateLoanRepaymentSchedule,
 } from "../services/loans";
-import { AgreementType } from "../services/types";
+import { AgreementType, Loan } from "../services/types";
 import { initialCollection } from "../../../shared/interledger/collection/initial";
+import { recurringCollection } from "../../../shared/interledger/collection/recurring";
+import { db } from "../../../shared/db";
 
 class MyLoans {
   async sendMenu(msg: TelegramBot.Message) {
@@ -95,7 +97,8 @@ class MyLoans {
     const askWalletAddress = async (loanAmount: string, loanReason: string) => {
       await bot.sendMessage(
         msg.chat.id,
-        "Please enter your Open Payments wallet address.\n\nA small payment will be deducted to ensure your wallet is active."
+        "Please enter your <b>Open Payments wallet address URL</b>\n\nYou'll be asked to authorise a $0.40 payment so we can verifiy the account is active.",
+        { parse_mode: "HTML" }
       );
       bot.once("message", async (msg) => {
         const walletAddress = msg.text;
@@ -115,7 +118,8 @@ class MyLoans {
 
         await bot.sendMessage(
           msg.chat.id,
-          `Please approve the authorisation payment:\n\n${response.outgoingPaymentGrant["interact"].redirect}`
+          `Please approve the <b>authorisation payment of $0.40:</b>\n\n${response.outgoingPaymentGrant["interact"].redirect}`,
+          { parse_mode: "HTML" }
         );
       });
     };
@@ -203,21 +207,19 @@ class MyLoans {
     const msg = callbackQuery.message;
     await bot.sendMessage(msg.chat.id, "...");
     const fixedLoanId = data.split("_")[2];
+    const loanDetails = await getLoanByLoanId(fixedLoanId);
 
     await updateLoanRepaymentSchedule(fixedLoanId, AgreementType.FIXED, {
       type: AgreementType.FIXED,
-      amount: 120,
+      amount: loanDetails.remaining / 12,
       frequency: "monthly",
     });
-
-    const loanDetails = await getLoanByLoanId(fixedLoanId);
-
     const fixedRepaymentMessage =
       "You have chosen the <b>Fixed Repayment Plan.</b>\n\n" +
-      `Your interest rate for the loan is ${
-        loanDetails.interestRate * 100
-      }% per annum, compounded annually.\n\n` +
-      "Please confirm that you agree to 10 monthly repayments of $120 each.";
+      `Interest Rate: ${loanDetails.interestRate * 100}%\n\n` +
+      `Please confirm that you agree to 10 monthly repayments of ${
+        loanDetails.remaining / 12
+      } each.`;
 
     const fixedRepaymentOptions = {
       reply_markup: {
@@ -251,8 +253,8 @@ class MyLoans {
     const loanDetails = await getLoanByLoanId(variableLoanId);
     const variableRepaymentMessage = `You have chosen the <b>Variable Repayment Plan:</b>\n\nInterest Rate: ${
       loanDetails.interestRate * 100
-    }%<b>Do you accept that 15% of all wallet deposits will be sweeped to your loan until you've paid back $${
-      loanDetails.principal * (1 + loanDetails.interestRate)
+    }%\n\n<b>Do you accept that 10% of all wallet deposits will be sweeped to repay your loan until you've paid back $${
+      loanDetails.remaining
     }?</b>`;
 
     await updateLoanRepaymentSchedule(
@@ -301,11 +303,42 @@ class MyLoans {
   async payBackSomeNow(callbackQuery: TelegramBot.CallbackQuery) {
     const data = callbackQuery.data;
     const msg = callbackQuery.message;
-    const loanId = data.split("_")[2];
+    const loanId = data.replace("pay_back_some_now_", "");
 
-    await bot.sendMessage(msg.chat.id, "...");
-    await bot.sendMessage(msg.chat.id, `You've paid!`, {
-      parse_mode: "HTML",
+    await bot.sendMessage(
+      msg.chat.id,
+      "How much would you like to pay back now? Please enter the amount in USD."
+    );
+
+    bot.once("message", async (responseMsg) => {
+      const amount = parseFloat(responseMsg.text);
+      if (isNaN(amount) || amount <= 0) {
+        await bot.sendMessage(
+          msg.chat.id,
+          "Please enter a valid amount greater than 0."
+        );
+      } else {
+        const response = await recurringCollection(amount * 100, loanId);
+        if (!response.failed) {
+          // Update loan remaining
+          const data = db.readData();
+          const loanData: Loan = data["loans"].find(
+            (loan) => loan.id === loanId
+          );
+          loanData.remaining -= amount;
+          db.updateData(data);
+
+          await bot.sendMessage(
+            msg.chat.id,
+            `You've paid $${amount.toFixed(2)}. Thank you for your payment!`
+          );
+        } else {
+          await bot.sendMessage(
+            msg.chat.id,
+            `Payment failed 😓, please try again later`
+          );
+        }
+      }
     });
   }
 }

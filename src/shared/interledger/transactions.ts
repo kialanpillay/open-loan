@@ -21,13 +21,13 @@ export async function getTransactions(loanId: string): Promise<number> {
 
     if (transactions.length > 0) {
       const txn = transactions[0];
-      debitAmount = 0.1 * Number(txn.receivedAmount.value);
+      debitAmount = Math.round(0.1 * Number(txn.receivedAmount.value));
       return debitAmount;
     }
 
     // If no transactions, revert to fixed schedule
     if ((debitAmount = -1)) {
-      debitAmount = (loan.principal * (1 + loan.interestRate)) / 10;
+      debitAmount = Math.round(loan.principal * (1 + loan.interestRate) * 10);
     }
   } catch (error) {
     console.error(error);

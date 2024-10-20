@@ -12,7 +12,8 @@ bot.on("message", (msg) => {
       bot.sendMessage(chatId, "...");
       bot.sendMessage(
         chatId,
-        `<b>${PersistentMenuButton.HowItWorks}</b>\n\nGet funded today by:\n\n1. Giving us some information about your loan.\n2. Supplying your Open Payments wallet address.\n3. Selecting and agreeing to your repayment plan\n\nAs simple as that!`
+        `<b>${PersistentMenuButton.HowItWorks}</b>\n\nGet funded today by:\n\n1. Giving us some information about your loan.\n2. Supplying your Open Payments wallet address.\n3. Selecting and agreeing to your repayment plan\n\nAs simple as that!`,
+        { parse_mode: "HTML" }
       );
       break;
   }
@@ -20,7 +21,7 @@ bot.on("message", (msg) => {
 
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
-  const welcomeMessage = `Welcome BOSS! 🤑\n\n<b>Let's get you financed.</b>\n\nNeed some help filling a new purchase order? How about a new piece of machinery for your business? Open Loan's got you covered.\n\nTap <b>${PersistentMenuButton.MyLoans}</b> to get started`;
+  const welcomeMessage = `Welcome BOSS! 🤑\n\n<b>Let's get you financed.</b>\n\nNeed some help filling a new purchase order? How about a new piece of machinery for your business? Open Loans has got you covered.\n\nTap <b>${PersistentMenuButton.MyLoans}</b> to get started`;
   const options = {
     reply_markup: {
       keyboard: [

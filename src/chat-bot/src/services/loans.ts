@@ -37,7 +37,7 @@ export async function createLoan(
     id,
     userId,
     principal,
-    remaining: principal,
+    remaining: parseFloat((principal * (1 + 0.1)).toFixed(2)),
     interestRate: 0.1,
     reason,
     description: completion.choices[0].message.content,
