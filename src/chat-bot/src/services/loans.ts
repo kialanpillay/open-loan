@@ -8,6 +8,8 @@ import {
 } from "./types";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "../../../shared/db";
+import { AccountFlags } from "tigerbeetle-node";
+import { createTigerBeetleClient } from "../../../shared/tigerbeetle/client";
 
 export async function createLoan(
   userId: number,
@@ -32,6 +34,28 @@ export async function createLoan(
       },
     ],
   });
+
+  const client = createTigerBeetleClient();
+  const accounts = await client.lookupAccounts([BigInt(userId)])
+  if (accounts.length === 0) {
+    const openLoanAccount = {
+      id: BigInt(userId), 
+      debits_pending: 0n,
+      debits_posted: 0n,
+      credits_pending: 0n,
+      credits_posted: 0n,
+      user_data_128: 0n,
+      user_data_64: 0n,
+      user_data_32: 0,
+      reserved: 0,
+      ledger: 1,
+      code: 102,
+      flags: AccountFlags.history,
+      timestamp: 0n,
+    };
+    
+    await client.createAccounts([openLoanAccount]);
+  }
 
   const loan: Loan = {
     id,

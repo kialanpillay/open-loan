@@ -53,8 +53,7 @@ serve(
     port: port,
   },
   (info) => {
-    console.log(`Open Loan 🚀: Port ${info.port}`);
-    const data = db.readData();
+    console.log(`Open Loan API 🚀: Port ${info.port}`);
 
     // Start the polling job
     setInterval(pollingJob, POLLING_INTERVAL);
