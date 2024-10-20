@@ -12,7 +12,7 @@ export const handleTransactionsInteraction = async (c: Context) => {
   const interactRef = c.req.query("interact_ref");
   const id = c.req.param("id");
   console.log(
-    `[handleInteraction] for loan ${id} and interaction reference ${interactRef}`
+    `[handleTransactionsInteraction] for loan ${id} and interaction reference ${interactRef}`
   );
 
   const loan = await getLoanByLoanId(id);

@@ -2,22 +2,19 @@ import type { Context } from "hono";
 import { createOpenPaymentsClient } from "../../../../shared/interledger/infrastructure/client";
 import {
   getLoanByLoanId,
-  updateLoanGrants,
 } from "../../../../chat-bot/src/services/loans";
-import { Layout } from "../../components/Layout";
-import { Status } from "../../components/Status";
-import { sendTransactionAuthorisationRequest } from "../../services/notifications";
+import { OPEN_LOAN_WALLET_ADDRESS } from "../../../../shared/interledger/util/constants";
 
-export const handlePaymentInteraction = async (c: Context) => {
+export const handleDisbursementInteraction = async (c: Context) => {
   const interactRef = c.req.query("interact_ref");
   const id = c.req.param("id");
   console.log(
-    `[handlePaymentInteraction] for loan ${id} and interaction reference ${interactRef}`
+    `[handleDisbursementInteraction] for loan ${id} and interaction reference ${interactRef}`
   );
 
   const loan = await getLoanByLoanId(id);
 
-  const { outgoingPaymentGrant, incomingPayment, walletAddress } = loan.grants;
+  const { outgoingPaymentGrant, incomingPayment } = loan.disbursementGrants;
   try {
     const client = await createOpenPaymentsClient();
     const continuedGrant: any = await client.grant.continue(
@@ -30,37 +27,27 @@ export const handlePaymentInteraction = async (c: Context) => {
       }
     );
 
-    const customerWalletAddress = await client.walletAddress.get({
-      url: walletAddress,
+    const openLoanWalletAddress = await client.walletAddress.get({
+      url: OPEN_LOAN_WALLET_ADDRESS,
     });
 
     const outgoingPayment = await client.outgoingPayment.create(
       {
-        url: new URL(walletAddress).origin,
+        url: new URL(OPEN_LOAN_WALLET_ADDRESS).origin,
         accessToken: continuedGrant["access_token"].value,
       },
       {
-        walletAddress: walletAddress,
+        walletAddress: OPEN_LOAN_WALLET_ADDRESS,
         incomingPayment: incomingPayment.id,
         debitAmount: {
           value: "40", // Agreement Initiation Payment
-          assetCode: customerWalletAddress.assetCode,
-          assetScale: customerWalletAddress.assetScale,
+          assetCode: openLoanWalletAddress.assetCode,
+          assetScale: openLoanWalletAddress.assetScale,
         },
       }
     );
-    updateLoanGrants(id, {
-      accessToken: continuedGrant["access_token"].value,
-      manageUrl: continuedGrant["access_token"].manage,
-    });
 
-    await sendTransactionAuthorisationRequest(loan.userId, loan.id);
-
-    return c.render(
-      <Layout>
-        <Status status={outgoingPayment.failed ? "Failed" : "Success"} />
-      </Layout>
-    );
+    return c.text(`Disbursement ${outgoingPayment.failed ? 'Failed' : 'Succeeded'}`, 201);
   } catch (error) {
     console.log(error);
     return c.text(`Internal Server Error. ${error}`, 500);
