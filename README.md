@@ -5,7 +5,7 @@ A micro-financing product built to disrupt the cash economy and optimise collect
 ## Links
 
 - Presentation: https://docs.google.com/presentation/d/10mcK7lIkoPe-3MagOSpyXuc6K5djryRbmXMfUY2fPNw/edit?usp=sharing
-- Demo: _>(Optional) Link to a live demo.<_
+- Demo: https://youtu.be/EH7A6nxjZ_E
 
 ## How it works
 
