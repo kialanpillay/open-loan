@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
 import { createOpenPaymentsClient } from "../infrastructure/client";
-import { OPEN_LOAN_WALLET_ADDRESS, BASE_URL } from "../util/constants";
+import { OPEN_LOAN_WALLET_ADDRESS } from "../util/constants";
 
 export async function initialCollection(
   loanId: string,
@@ -52,7 +52,7 @@ export async function initialCollection(
         start: ["redirect"],
         finish: {
           method: "redirect",
-          uri: `${BASE_URL}/auth/transactions/${loanId}`,
+          uri: `http://localhost:3000/auth/transactions/${loanId}`,
           nonce: v4(),
         },
       },
@@ -93,7 +93,7 @@ export async function initialCollection(
         start: ["redirect"],
         finish: {
           method: "redirect",
-          uri: `${BASE_URL}/auth/${loanId}`,
+          uri: `http://localhost:3000/auth/${loanId}`,
           nonce: v4(),
         },
       },

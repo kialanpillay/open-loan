@@ -5,6 +5,9 @@ export enum PersistentMenuButton {
   HowItWorks = "How it Works 🙋",
 }
 
-export const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, {
-  polling: true,
-});
+export const bot = new TelegramBot(
+  "7870994566:AAGkM6y9yP8jMvfIejOTtIPM0QIQAFo1gns",
+  {
+    polling: true,
+  }
+);
