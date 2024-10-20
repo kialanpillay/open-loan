@@ -11,7 +11,7 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
                 <title>Open Loan</title>
                 <style>{`
                     body {
-                        font-family: Inter, sans-serif;
+                        font-family: helvetica, sans-serif;
                         display: flex;
                         flex-direction: column;
                         min-height: 100vh;
