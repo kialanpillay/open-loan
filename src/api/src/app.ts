@@ -5,6 +5,7 @@ import { logger } from "hono/logger";
 import { secureHeaders } from "hono/secure-headers";
 import { handlePaymentInteraction } from "./handlers/auth/payment";
 import { handleTransactionsInteraction } from "./handlers/auth/transactions";
+import { handleDisbursementInteraction } from "./handlers/auth/disbursement";
 
 const app = new Hono();
 // CORS middleware
@@ -34,5 +35,6 @@ app.get("/", (c) => c.text("Open Loan"));
 
 app.get("/auth/:id", handlePaymentInteraction);
 app.get("/auth/transactions/:id", handleTransactionsInteraction);
+app.get("/auth/internal/:id", handleDisbursementInteraction);
 
 export default app;

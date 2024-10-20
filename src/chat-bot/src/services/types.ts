@@ -24,6 +24,7 @@ export type Loan = {
   description: string;
   createAt: Date;
   grants?: any;
+  disbursementGrants?: any;
   repaymentType?: AgreementType;
   repaymentPlan?: FixedRepaymentSchedule | VariableRepaymentSchedule;
 };
