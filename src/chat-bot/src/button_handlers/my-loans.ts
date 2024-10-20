@@ -207,19 +207,19 @@ class MyLoans {
     const msg = callbackQuery.message;
     await bot.sendMessage(msg.chat.id, "...");
     const fixedLoanId = data.split("_")[2];
+    const loanDetails = await getLoanByLoanId(fixedLoanId);
 
     await updateLoanRepaymentSchedule(fixedLoanId, AgreementType.FIXED, {
       type: AgreementType.FIXED,
-      amount: 120,
+      amount: loanDetails.remaining / 12,
       frequency: "monthly",
     });
-
-    const loanDetails = await getLoanByLoanId(fixedLoanId);
-
     const fixedRepaymentMessage =
       "You have chosen the <b>Fixed Repayment Plan.</b>\n\n" +
       `Interest Rate: ${loanDetails.interestRate * 100}%\n\n` +
-      "Please confirm that you agree to 10 monthly repayments of $120 each.";
+      `Please confirm that you agree to 10 monthly repayments of ${
+        loanDetails.remaining / 12
+      } each.`;
 
     const fixedRepaymentOptions = {
       reply_markup: {
@@ -254,7 +254,7 @@ class MyLoans {
     const variableRepaymentMessage = `You have chosen the <b>Variable Repayment Plan:</b>\n\nInterest Rate: ${
       loanDetails.interestRate * 100
     }%\n\n<b>Do you accept that 10% of all wallet deposits will be sweeped to repay your loan until you've paid back $${
-      loanDetails.principal * (1 + loanDetails.interestRate)
+      loanDetails.remaining
     }?</b>`;
 
     await updateLoanRepaymentSchedule(
