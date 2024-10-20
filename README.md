@@ -44,6 +44,6 @@ We were able to execute on our original vision with minimal depatures from what 
 
 ## The Future
 
-We plan to extend the solution with different chat interfaces for increased market penetration and add multi-lingual support. Modelling the internal ledger in TigerBeetle is a natural iteration and supports safe and correct concurrent transaction processing at scale.
+We plan to extend the solution with different chat interfaces for increased market penetration and add multi-lingual support. Modelling the internal ledger (see [branch](https://github.com/kialanpillay/open-loan/tree/kialan/tigerbeetle)) in TigerBeetle is a natural iteration and supports safe and correct concurrent transaction processing at scale.
 
 We also aim to develop an adaptive credit scoring solution to mitigate risk coupled with extensions to bot service facilitate user KYC and analytics. This data will be stored in a general-purposed database to for model training and inference. 
