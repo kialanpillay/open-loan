@@ -8,7 +8,7 @@ import { sendPaymentNotificationToUser } from "./services/notifications";
 import { Loan } from "../../chat-bot/src/services/types";
 
 const port = 3000;
-const POLLING_INTERVAL = 15000;
+const POLLING_INTERVAL = 25000;
 
 let hasExecuted = false;
 async function pollingJob() {
