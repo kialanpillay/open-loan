@@ -23,8 +23,9 @@ export async function recurringCollection(debitAmount: number, loanId: string) {
   });
 
   const data = db.readData();
-  loan.grants.accessToken = token.access_token.value;
-  loan.grants.manageUrl = token.access_token.manage;
+  const loanData = data["loans"].find((loan) => loan.id === loanId);
+  loanData.grants.accessToken = token.access_token.value;
+  loanData.grants.manageUrl = token.access_token.manage;
   db.updateData(data);
 
   const outgoingPayment = await client.outgoingPayment.create(

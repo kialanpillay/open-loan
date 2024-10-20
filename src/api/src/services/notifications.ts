@@ -44,7 +44,7 @@ export async function sendTransactionAuthorisationRequest(
   loanId: string
 ) {
   const loan = await getLoanByLoanId(loanId);
-  const outcomeMessage = `<b>One more step!</b>\n\nOpen Loan requires access to your transaction history.\n\n${loan.grants.userIncomingPaymentsGrant["interact"].redirect}`;
+  const outcomeMessage = `<b>One more step! ⏳</b>\n\nPlease approve this request to share your <b>transaction history</b> with Open Loan:\n\n${loan.grants.userIncomingPaymentsGrant["interact"].redirect}`;
 
   const telegramApiUrl = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`;
   const response = await fetch(telegramApiUrl, {
@@ -67,11 +67,12 @@ export async function sendTransactionAuthorisationRequest(
 export async function sendPaymentNotificationToUser(
   chatId: number,
   repaymentAmount: number,
+  desciption: string,
   remaining: number
 ) {
-  const message = `<b>Loan Repayment Received</b>\n\nWe received $${
+  const message = `<b>Loan Repayment Received 🙏</b>\n\nWe received $${
     repaymentAmount / 100
-  } from you!\n\nYou still need to repay $${remaining}`;
+  } from you for your <b>${desciption} Loan!</b>\n\nYou still need to repay $${remaining}`;
 
   const telegramApiUrl = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`;
   const response = await fetch(telegramApiUrl, {

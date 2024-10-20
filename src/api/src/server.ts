@@ -8,9 +8,12 @@ import { sendPaymentNotificationToUser } from "./services/notifications";
 import { Loan } from "../../chat-bot/src/services/types";
 
 const port = 3000;
-const POLLING_INTERVAL = 60000;
+const POLLING_INTERVAL = 15000;
 
+let hasExecuted = false;
 async function pollingJob() {
+  // Ensure the polling job executes only once
+  if (hasExecuted) return;
   const data = db.readData();
   const latestLoan: Loan = data.loans.sort(
     (a, b) => b.createAt - a.createAt
@@ -25,14 +28,21 @@ async function pollingJob() {
     const response = await recurringCollection(debitAmount, latestLoan.id);
 
     if (!response.failed) {
-      latestLoan.remaining -= debitAmount / 100;
+      const data = db.readData();
+      const loanData: Loan = data["loans"].find(
+        (loan) => loan.id === latestLoan.id
+      );
+      loanData.remaining -= debitAmount / 100;
+      db.updateData(data);
 
       await sendPaymentNotificationToUser(
         latestLoan.userId,
         debitAmount,
-        latestLoan.remaining
+        latestLoan.description,
+        loanData.remaining
       );
-      db.updateData(data);
+
+      hasExecuted = true;
     }
   }
 }
