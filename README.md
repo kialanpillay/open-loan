@@ -1,40 +1,43 @@
 # Open Loan
 
-A micro-financing product built to disrupt the cash economy and optimise collections.
+Open Loan is a micro-financing product designed to disrupt the cash economy and optimize collections. In South Africa, where cash accounts for 50% of money movements in the informal sector, informal traders often struggle to secure financing, while lenders face excessive exposure to delinquent debtors. Open Loan leverages the transparency of Open Payments API standards to increase access to low-cost, instant micro-financing for informal traders and enhance lenders' ability to manage their books by offering smart collection mechanisms and flexible repayment arrangements.
 
 ## Links
 
-- Presentation: https://docs.google.com/presentation/d/10mcK7lIkoPe-3MagOSpyXuc6K5djryRbmXMfUY2fPNw/edit?usp=sharing
-- Demo: https://youtu.be/EH7A6nxjZ_E
+- Presentation: [Google Slides](https://docs.google.com/presentation/d/10mcK7lIkoPe-3MagOSpyXuc6K5djryRbmXMfUY2fPNw/edit?usp=sharing).
+- Demo: [YouTube](https://youtu.be/EH7A6nxjZ_E).
 
-## How it works
+## How Open Loan Works
 
-Users interact with Open Loan via an intuitive Telegram bot. Through simple chat commands, users can apply for a new loan, authenticate their Open Payments wallet for seamless loan repayment, and initiate custom repayments for when they have excess cash.
+Users interact with Open Loan via an intuitive Telegram bot. With simple natural language commands, they can apply for new loans, authenticate their Open Payments wallet for seamless recurring payments, manage existing loans, and initiate ad-hoc repayments when they have excess cash.
 
-In an informal cash economy, business owners and entrepreneurs are 'thin' credit clients with often erratic cash flow behaviors. Open Loan optimises for collection rates by allowing users to opt for a 'Variable' repayment plan, where repayments are a percentage of incoming account deposits, and are also triggered by these deposits, increasing the likelihood of repayment. Users are also offered a traditional 'Fixed' repayment plan with regular payments at a fixed interval.
+In an informal, cash-dominated economy, business owners and entrepreneurs are often considered 'thin' credit clients with erratic cash flow behaviors. Open Loan optimizes collection rates by allowing users to choose a 'Variable' repayment plan, where repayments are a percentage of incoming account deposits. Incoming payments are automatically monitored, triggering repayments to increase conversion and facilitate a frictionless repayment experience. Users can also select a traditional 'Fixed' repayment plan, which involves regular payments at a fixed interval.
 
-By using a highly accessible interface like chat together with loan repayment options that work for the target market, Open Loan can confidently finance a challenging market.
+By combining a highly accessible chat-based interface with loan repayment options tailored to the target market, Open Loan confidently finances a dynamic, emerging market where traditional financial products are insufficiently inclusive.
 
-## How to run
+## Run Instructions
 
-1. Create a .env file in the base of this repository. Add OPENAI_API_KEY=<your open API key>.
+1. Create a .env file in the base of this repository. Add OPENAI_API_KEY=`YOUR_KEY`.
 2. Run `npm i` to install the node packages required for this project.
-3. In two seperate terminal sessions, run `npm run start-api` and `npm run start-chat-bot` to start the API server and chat bot server respectivly. The API server is a [Hono] REST API used for managing authentication requests with the Open Payments protocol. The chat bot server serves Open Loan to the user via Telegram.
+3. In two seperate terminal sessions, run `npm run start-api` and `npm run start-chat-bot` to start the API and Bot services. The Open Loans API is a [Hono] REST API used for managing authentication requests with the Open Payments protocol. Hono is a light-weight web application framework with support for any JavaScript run-time. The Bot service presents the Open Loan application to the user via Telegram.
+
+
+
 4. Message https://t.me/open_loan_interledger_bot with the /start command.
 
 ## Team members
 
-- [Kialin Pillay](https://github.com/kialanpillay)
+- [Kialan Pillay](https://github.com/kialanpillay)
 - [Samuel Sendzul](https://github.com/Samuel-Sendzul)
 
 ## Learnings
 
-We learnt about the seamless nature of the Interledger Open Payments protocol. Once implemented correctly, we were able to achieve payments experiences that we've both struggled to achieve with traditional payments applications.
+We learned about the seamless nature of the Interledger Open Payments protocol. Once implemented correctly, we were able to achieve payment experiences that had previously been difficult to accomplish with traditional payment applications. The declarative nature of the APIs facilitates building core payment operations with ease.
 
 ## Achievements
 
-We were able to execute on our original vision with minimal depatures from what we expected to be able to achieve.
+We were able to execute on our original vision with minimal depatures from what we expected to be able to achieve. 
 
-## What comes next?
+## The Future
 
-We would like to expand the solution to more chat interfaces for increased market penetration. We'd also like to built an automated loan risk scoring solution to better estimate the risk of incoming loan applications. We can build out the loan application component of the chat bot to include identity verification, user account transaction analysis, and user business discovery to augment the data available to make the loan granting decision.
+We plan to expand the solution to more chat interfaces for increased market penetration and add support for different local languages. We also aim to develop an adaptive credit scoring solution to mitigate risk. Additionally, we will enhance the loan application component of the chatbot to include identity verification, user account transaction analysis, and business discovery, augmenting the data available for approval decisions.
