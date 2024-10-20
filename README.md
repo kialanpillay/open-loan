@@ -1,5 +1,8 @@
 # Open Loan
 
+<img width="120" alt="Open Loan" src="https://github.com/user-attachments/assets/12104db1-1c61-479c-a07c-7927abab1ea6">
+
+
 Open Loan is a micro-financing product designed to disrupt the cash economy and optimize collections with once-off and recurring repayment flows. In South Africa, where cash accounts for 50% of money movements in the informal sector, individuals often struggle to secure financing, while lenders face excessive exposure to delinquent debtors. Open Loan leverages the transparency of Open Payments API standards to increase access to low-cost, instant micro-financing for informal traders and enhance lenders' ability to manage their books by offering smart collection mechanisms and flexible repayment arrangements.
 
 By empowering both the payee _and_ the payer, Open Loan seeks to contribute to **sustainable** lending practices that drive growth in local communities.
